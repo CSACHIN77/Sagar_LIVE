@@ -584,40 +584,9 @@ class LegBuilder:
         order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id,
                                            "orderSide": orderSide, "orderQuantity":traded_quantity, "limitPrice": trigger_price, 'stopPrice':self.sl_price, 'orderUniqueIdentifier': orderid})
         # self.pegasus.log(order)
-    def order_execution():
-        pass
-    
-    # async def calculate_mtm(self):
-    #     print(f'calculate_mtm for {self.leg_name}')
-    #     quantity = self.lot_size*self.total_lots 
-    #     print(f'entering calculate_mtm for {self.leg_name}')
-    #     print('waiting for tick data')
-    #     await self.market_data_event.wait()
-    #     self.market_data_event.clear()
-    #     print(f'trade position {self.trade_position} for {self.leg_name}')
-    #     while (self.trade_position):
 
-    #         current_ltp = self.market_data[-1:][0]['LastTradedPrice']
-            
-    #         if self.trade_position.lower()== 'long':
-    #             self.pnl = round((current_ltp - self.trade_entry_price)*quantity, 2)
-    #             if self.pnl > self.max_profit:
-    #                 self.max_profit
-    #             elif self.pnl < self.max_loss:
-    #                 self.max_loss = self.pnl
-    #             # print(f'current m2m for {self.leg_name} is {self.pnl} and cmp {current_ltp}')
-    #         else :
-    #             self.pnl = round((self.trade_entry_price - current_ltp )*quantity, 2)
-    #             if self.pnl > self.max_profit:
-    #                 self.max_profit
-    #             elif self.pnl < self.max_loss:
-    #                 self.max_loss = self.pnl
-    #             # print(f'current m2m for {self.leg_name} is {self.pnl} and cmp {current_ltp}')
-    #         await asyncio.sleep(1)
-    #     self.strategy.total_pnl += self.pnl
-    
+
     async def calculate_mtm(self):
-        print(f'calculate_mtm for {self.leg_name}')
         quantity = self.lot_size*self.total_lots 
         print(f'entering calculate_mtm for {self.leg_name}')
         print('waiting for tick data')
@@ -636,8 +605,9 @@ class LegBuilder:
                 current_ltp = self.market_data[-1:][0]['LastTradedPrice']
                 if self.trade_position.lower()== 'long':
                     self.pnl = round((current_ltp - self.trade_entry_price)*quantity, 2) + self.realised_pnl
-                    await self.stoploss_trail(current_ltp, "long")
-                    await self.roll_strike_handler(current_ltp, "long")
+                    # await self.stoploss_trail(current_ltp, "long")
+                    if self.roll_strike:
+                        await self.roll_strike_handler(current_ltp, "long")
                     # print(f'm2m  {self.leg_name} is {self.pnl}')
                     # if self.pnl > self.max_profit:
                     #     self.max_profit
@@ -659,7 +629,9 @@ class LegBuilder:
             
     async def roll_strike_handler(self,ltp, position):
             print('entering roll_strike handler')
-            if self.roll_strike:
+            if self.roll_strike: 
+                current_ltp = self.strategy.get_underlyingltp()
+                print(f"roll strike handler current ltp is {current_ltp}")
                 if ((position=="long") and ((ltp-self.trade_entry_price)> self.roll_strike["roll_strike_value"])):
                     #square off existing order
                     #cancel trigger order

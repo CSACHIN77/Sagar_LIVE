@@ -62,7 +62,7 @@ class MDSocket_io:
         self.sid.on('disconnect', self.on_disconnect)
         self.sid.on('error', self.on_error)
     def on_connect(self):
-        print('Market Data Socket connected successfully!')
+        # print('Market Data Socket connected successfully!')
         logger.log(f'socket reconnected @ {datetime.now()}')
     def on_message1501_json_full(self, data):
         print('I received a 1501 Level1, Touchline message!', data)
@@ -74,7 +74,7 @@ class MDSocket_io:
         # print(f'sent data to publisher @ {datetime.now()}')
         
     def on_disconnect(self):
-        print('Market Data Socket disconnected!')
+        # print('Market Data Socket disconnected!')
         logger.log(f'socket disconnected @ {datetime.now()}')
     def on_error(self, data):
         print('Market Data Error:', data)

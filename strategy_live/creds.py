@@ -1,7 +1,7 @@
 creds = {
-    'market_key': "1f440830af1d82a7a09251",
-    'market_secret': "Dllf432@Co",
-    'interactive_key': "e409ac8bd3f08ffc796583",
-    'interactive_secret': "Htuh007@ub",
+    'market_key': "d06e78e147a17d6bd8f856",
+    'market_secret': "Disn468#$B",
+    'interactive_key': "8e39993d7a17660f960145",
+    'interactive_secret': "Hkrp044@eR",
     'port': "https://ttblaze.iifl.com"
 }

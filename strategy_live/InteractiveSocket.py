@@ -76,7 +76,8 @@ class OrderSocket_io:
         print('I received a message!')
 
     def on_joined(self, data):
-        print('Interactive socket joined successfully!' + data)
+        # print('Interactive socket joined successfully!' + data)
+        pass
 
     def on_error(self, data):
         print('Interactive socket error!' + data)
@@ -132,7 +133,8 @@ class OrderSocket_io:
         print("User logged out!" + data)
 
     def on_disconnect(self):
-        print('Interactive Socket disconnected!')
+        # print('Interactive Socket disconnected!')
+        pass
 
     def get_emitter(self):
         return self.eventlistener
