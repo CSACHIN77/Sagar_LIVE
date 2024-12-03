@@ -6,7 +6,8 @@ from MarketSocket import MDSocket_io
 from InteractiveSocket import OrderSocket_io
 from datetime import datetime
 from Broker import XTS
-from creds import creds
+import os
+import sys
 from utils import get_atm, create_tradebook_table, broker_login
 from Publisher import Publisher
 import time
@@ -17,7 +18,14 @@ import asyncio
 warnings.filterwarnings("ignore")
 port = "https://ttblaze.iifl.com"
 xts = XTS()  
+sys.path.append(os.path.abspath('../../Sagar_common'))
 
+try:
+    from common_function import fetch_parameter
+except ImportError as e:
+    print(f"Error importing 'fetch_parameter': {e}")
+environment = "dev"
+creds = fetch_parameter(environment, "live_creds")
 market_token, interactive_token, userid = broker_login(xts, creds)
 xts.market_token, xts.interactive_token, xts.userid  = market_token, interactive_token, userid
 # xts.update_master_db()

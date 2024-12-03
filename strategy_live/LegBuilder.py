@@ -8,6 +8,16 @@ from io import StringIO
 from datetime import datetime, timedelta
 import asyncio
 from utils import Logger, update_tradebook, slice_orders
+import os
+import sys
+sys.path.append(os.path.abspath('../../Sagar_common'))
+
+try:
+    from common_function import fetch_parameter
+except ImportError as e:
+    print(f"Error importing 'fetch_parameter': {e}")
+environment = "dev"
+creds = fetch_parameter(environment, "live_creds")
 class LegBuilder:
     def __init__(self, xts, soc, interactive_soc, leg_name, strategy, publisher, total_lots, position, option_type, expiry, strike_selection_criteria, strike, roll_strike,
                  new_strike_selection_criteria, stop_loss, trailing_sl, no_of_reentry, simple_momentum=False, range_breakout=False):
