@@ -2,9 +2,17 @@ import json
 from datetime import datetime
 from typing import List, Dict, Any
 import pandas as pd
-from utils import get_atm, filter_dataframe, report_generator
+from utils import get_atm, filter_dataframe, report_generator, get_base
 import asyncio
 import sys
+
+try:
+    from common_function import fetch_parameter
+except ImportError as e:
+    print(f"Error importing 'fetch_parameter': {e}")
+environment = "dev"
+stike_differences = fetch_parameter(environment, "strikeDifference")
+
 class Strategy:
     def __init__(self, xts, name: str, index: str, underlying: str, strategy_type: str, entry_time: datetime, 
                  last_entry_time: datetime, exit_time: datetime, square_off: float, overall_sl: float, 
@@ -31,7 +39,7 @@ class Strategy:
         print('calculating master db')
         self.df = self.xts.get_master_db()
         print('calculation done')
-        self.base = 100 if self.index == 'NIFTY BANK' else 50
+        self.base = get_base(self.index) #100 if self.index == 'NIFTY BANK' else 50
         self.total_pnl = 0
         self.trail_flag = False
         # self.legs = legs

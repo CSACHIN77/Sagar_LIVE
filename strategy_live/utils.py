@@ -9,6 +9,21 @@ import os
 def get_atm(price, base):
     return  round(price / base) * base
 
+def get_base(index, strikeDiffernces):
+    base = 100 # default
+    if index == "NIFTY":
+        base = strikeDiffernces["NIFTY_BASE"]
+    elif index == "NIFTY BANK":
+        base = strikeDiffernces["BANKNIFTY_BASE"]
+    elif index == "FINNIFTY":
+        base = strikeDiffernces["FINNIFTY_BASE"]
+    elif index == "MIDCAPNIFTY":
+        base = strikeDiffernces["MIDCAPNIFTY_BASE"]
+    elif index == "SENSEX":
+        base = strikeDiffernces["SENSEX_BASE"]
+    return base
+      
+
 def get_rolling_strike(atm, option_type, strike_type, base=100):
     """
     Calculate the strike price based on ATM, option type, and strike type.

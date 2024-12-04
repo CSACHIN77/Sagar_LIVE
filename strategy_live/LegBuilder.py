@@ -63,7 +63,7 @@ class LegBuilder:
         self.index = self.strategy.index
         self.df = self.strategy.df        
         # print(self.freeze_quantity)
-        self.base = 100 if self.strategy.index == 'NIFTY BANK' else 50
+        self.base = self.strategy.base #100 if self.strategy.index == 'NIFTY BANK' else 50
     def update_price(self, price):
         self.current_price = price
 
