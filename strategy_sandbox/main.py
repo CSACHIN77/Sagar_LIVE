@@ -43,7 +43,8 @@ async def process_leg(leg):
     await leg.leg_place_order()
     await leg.calculate_mtm()
   
-async def run_strategy(xts, strategy_details):
+async def run_strategy(xts, strategy_details, soc):
+    strategy_details['socket'] = soc
     strategy = Strategy(xts, **strategy_details)
     time_now = datetime.now()
     print(f"time is {datetime.now()}")
@@ -106,7 +107,7 @@ async def main():
 
     strategy_details_1 = {
         'name': 'strategy1', 'index': 'NIFTY BANK', 'underlying': 'spot', 'strategy_type': 'intraday',
-        'entry_time': "10:17", 'last_entry_time': "11:40", 'exit_time': "11:45", 'square_off': "partial",
+        'entry_time': "10:17", 'last_entry_time': "20:40", 'exit_time': "11:45", 'square_off': "partial",
         'overall_sl': 3000, 'overall_target': 4000,                   
         'trailing_for_strategy': {"type": "lock_and_trail", "profit": 2000, "lock_value": 1300, "trail_level":  200, "trail_value": 100}, 
         'implied_futures_expiry': 'current'
@@ -120,7 +121,7 @@ async def main():
     # }
     
     await asyncio.gather(
-        run_strategy(xts, strategy_details_1),
+        run_strategy(xts, strategy_details_1, soc),
         # run_strategy(xts, strategy_details_2)
     )
 
