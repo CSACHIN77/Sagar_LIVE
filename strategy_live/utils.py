@@ -344,7 +344,7 @@ def report_generator(strategy):
         'OrderType_y'
     ]
     df.drop(columns=columns_to_drop, inplace=True)
-    df['entry_slippage'] = df.apply(lambda x: x['trigger_entry_price'] - x['traded_entry_price'] if x['trade'] == 'buy' else x['traded_entry_price'] - x['traded_entry_price'], axis=1)
+    df['entry_slippage'] = df.apply(lambda x: x['trigger_entry_price'] - x['traded_entry_price'] if x['trade'] == 'buy' else x['traded_entry_price'] - x['trigger_entry_price'], axis=1)
     
     df['exit_slippage'] = df.apply(lambda x: x['traded_exit_price'] - x['trigger_exit_price'] if x['trade'] == 'buy' else x['trigger_exit_price'] - x['traded_exit_price'], axis=1)
     
