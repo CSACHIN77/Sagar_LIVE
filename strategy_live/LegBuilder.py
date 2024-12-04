@@ -636,36 +636,36 @@ class LegBuilder:
             await asyncio.sleep(3)
         # self.strategy.total_pnl += self.pnl
             
-    async def roll_strike_handler(self,ltp, position):
-            print('entering roll_strike handler')
-            if self.roll_strike: 
-                if ((position=="long") and ((ltp-self.trade_entry_price)> self.roll_strike["roll_strike_value"])):
-                    #square off existing order
-                    #cancel trigger order
-                    current_ltp = self.strategy.get_underlyingltp()
-                    current_atm = get_atm(current_ltp, self.base)
-                    roll_strike_atm = get_rolling_strike(current_atm, self.option_type, self.roll_strike['roll_strike_type'], self.base)
-                    print(f"roll strike handler current ltp is {current_ltp}")
-                    # selected_option = self.expiry_df[self.expiry_df['strike']== roll_strike_atm]
-                    selected_strike = int(roll_strike_atm)
-                    print(selected_strike)
-                    selected_roll_strike = int(selected_strike - self.base*self.roll_strike["roll_level"])
-                    roll_option_name = self.expiry_df[self.expiry_df['strike'].astype(int)== selected_roll_strike]
-                    print(f"selected strike is {roll_option_name['tradingsymbol'].values[0]}")
-                if ((position=="short") and ((self.trade_entry_price-ltp)> self.roll_strike["roll_strike_value"])):
-                    #square off existing order
-                    #cancel trigger order
-                    # selected_option = self.expiry_df[self.expiry_df['strike']== roll_strike_atm]
-                    current_ltp = self.strategy.get_underlyingltp()
-                    current_atm = get_atm(current_ltp, self.base)
-                    roll_strike_atm = get_rolling_strike(current_atm, self.option_type, self.roll_strike['roll_strike_type'], self.base)
-                    selected_strike = int(roll_strike_atm)
-                    print(selected_strike)
-                    selected_roll_strike = int(selected_strike + self.base*self.roll_strike["roll_level"])
-                    roll_option_name = self.expiry_df[self.expiry_df['strike'].astype(int)== selected_roll_strike] 
-                    print(f"selected strike is {roll_option_name['tradingsymbol'].values[0]}")
-                else:
-                    print('no need to roll strike')
+    # async def roll_strike_handler(self,ltp, position):
+    #         print('entering roll_strike handler')
+    #         if self.roll_strike: 
+    #             if ((position=="long") and ((ltp-self.trade_entry_price)> self.roll_strike["roll_strike_value"])):
+    #                 #square off existing order
+    #                 #cancel trigger order
+    #                 current_ltp = self.strategy.get_underlyingltp()
+    #                 current_atm = get_atm(current_ltp, self.base)
+    #                 roll_strike_atm = get_rolling_strike(current_atm, self.option_type, self.roll_strike['roll_strike_type'], self.base)
+    #                 print(f"roll strike handler current ltp is {current_ltp}")
+    #                 # selected_option = self.expiry_df[self.expiry_df['strike']== roll_strike_atm]
+    #                 selected_strike = int(roll_strike_atm)
+    #                 print(selected_strike)
+    #                 selected_roll_strike = int(selected_strike - self.base*self.roll_strike["roll_level"])
+    #                 roll_option_name = self.expiry_df[self.expiry_df['strike'].astype(int)== selected_roll_strike]
+    #                 print(f"selected strike is {roll_option_name['tradingsymbol'].values[0]}")
+    #             if ((position=="short") and ((self.trade_entry_price-ltp)> self.roll_strike["roll_strike_value"])):
+    #                 #square off existing order
+    #                 #cancel trigger order
+    #                 # selected_option = self.expiry_df[self.expiry_df['strike']== roll_strike_atm]
+    #                 current_ltp = self.strategy.get_underlyingltp()
+    #                 current_atm = get_atm(current_ltp, self.base)
+    #                 roll_strike_atm = get_rolling_strike(current_atm, self.option_type, self.roll_strike['roll_strike_type'], self.base)
+    #                 selected_strike = int(roll_strike_atm)
+    #                 print(selected_strike)
+    #                 selected_roll_strike = int(selected_strike + self.base*self.roll_strike["roll_level"])
+    #                 roll_option_name = self.expiry_df[self.expiry_df['strike'].astype(int)== selected_roll_strike] 
+    #                 print(f"selected strike is {roll_option_name['tradingsymbol'].values[0]}")
+    #             else:
+    #                 print('no need to roll strike')
     
             
     async def roll_strike_handler(self, ltp, position):
@@ -684,7 +684,7 @@ class LegBuilder:
                 roll_strike_atm = get_rolling_strike(
                     current_atm,
                     self.option_type,
-                    self.roll_strike['roll_strike_type'],
+                    self.roll_strike['roll_strike_strike_type'],
                     self.base
                 )
                 print(f"roll strike handler current ltp is {current_ltp}")
