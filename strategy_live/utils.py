@@ -9,7 +9,7 @@ import os
 def get_atm(price, base):
     return  round(price / base) * base
 
-def get_rolling_strike(atm, option_type, strike_type, base=1):
+def get_rolling_strike(atm, option_type, strike_type, base=100):
     """
     Calculate the strike price based on ATM, option type, and strike type.
 
@@ -22,6 +22,7 @@ def get_rolling_strike(atm, option_type, strike_type, base=1):
     Returns:
         float: The calculated strike price.
     """
+    option_type = "CE" if option_type == 3 else "PE"
     strike_type = strike_type.upper()  # Convert to uppercase for consistency
     option_type = option_type.upper()  # Convert to uppercase for consistency
 
