@@ -54,6 +54,20 @@ io.on('connection', (socket) => {
 // Function to convert UNIX timestamp to GMT date
 const convertToGMT = (timestamp) => new Date(timestamp * 1000).toISOString();
 
+// Function to log batch information
+const logBatchInfo = (batch, timestamp) => {
+  console.log('\n==== New Batch Pushed ====');
+  console.log(`Timestamp: ${convertToGMT(timestamp)} GMT`);
+  const currentTime = new Date().toLocaleString();
+  console.log(`Current Time: ${currentTime}`);
+
+  console.log(`Batch Size: ${batch.length} records`);
+  console.log(`ID Range: ${batch[0].id} to ${batch[batch.length - 1].id}`);
+  // console.log('First record in batch:', batch[0]);
+  // console.log('Last record in batch:', batch[batch.length - 1]);
+  console.log('========================\n');
+};
+
 // Fetch and push data based on `database_time` mode
 const pushDataInRealTime = async () => {
   let lastId = readLastId();
@@ -88,9 +102,9 @@ const pushDataInRealTime = async () => {
           }
         }
 
-        // Emit the batch
+        // Emit the batch and log information
         io.emit('message', { data: batch });
-        console.log(`Data batch sent at ${convertToGMT(currentLastUpdateTime)} GMT:`, batch);
+        logBatchInfo(batch, currentLastUpdateTime);
 
         // Update lastId after processing the batch
         writeLastId(batch[batch.length - 1].id);
@@ -101,7 +115,8 @@ const pushDataInRealTime = async () => {
           const nextOverallData = JSON.parse(rows[i].OverallData);
           const nextLastUpdateTime = nextOverallData.LastUpdateTime;
           const timeDifference = (nextLastUpdateTime - currentLastUpdateTime) * 1000;
-
+          
+          console.log(`Waiting ${timeDifference}ms for next batch...\n`);
           // Wait for the time difference
           await new Promise(resolve => setTimeout(resolve, timeDifference));
         }
@@ -129,14 +144,22 @@ const pushDataPerMinute = async (dataPerMinute) => {
 
       for (const row of rows) {
         const overallData = JSON.parse(row.OverallData);
-        const lastUpdateTime = convertToGMT(overallData.LastUpdateTime);
+        const lastUpdateTime = overallData.LastUpdateTime;
+
+        // Create a single-item batch for consistency in logging
+        const batch = [{
+          id: row.id,
+          OverallData: overallData
+        }];
 
         io.emit('message', { data: row });
-        console.log(`Data sent at ${lastUpdateTime} GMT:`, row);
+        logBatchInfo(batch, lastUpdateTime);
+
         writeLastId(row.id);
         lastId = row.id;
 
-        await new Promise(resolve => setTimeout(resolve, intervalPerData));  // Wait based on the interval
+        console.log(`Waiting ${intervalPerData}ms before next data point...\n`);
+        await new Promise(resolve => setTimeout(resolve, intervalPerData));
       }
     } catch (error) {
       console.error('Error polling database:', error);

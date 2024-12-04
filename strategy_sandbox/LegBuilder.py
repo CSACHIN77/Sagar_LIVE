@@ -504,7 +504,9 @@ class LegBuilder:
         # self.xts.subscribe_symbols([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}])
         self.soc.subscribe_symbols([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}])
         response = self.xts.get_quotes([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}], self.soc)
+        print(f"response data is {response}")
         ltp_data = response['result']['listQuotes']
+        print(ltp_data)
         ltp = json.loads(ltp_data[0])['LastTradedPrice']
         self.entry_price = float(ltp)
         # print(f'entry_price before placing order is {self.entry_price}')
@@ -671,7 +673,7 @@ class LegBuilder:
         print(f'entering calculate_mtm for {self.leg_name}')
         print('waiting for tick data')
         await self.market_data_event.wait()
-        print(f"{self.market_data}")
+        # print(f"{self.market_data}")
 
         self.market_data_event.clear()
         print(f"trade data is getting cleared")
