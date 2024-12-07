@@ -58,6 +58,7 @@ class LegBuilder:
         self.trade_data_event = asyncio.Event()
         self.market_data_event = asyncio.Event()
         self.realised_pnl = 0
+        self.instrument = None
     def assign_strategy_variables(self):
         # self.strike = self.strategy.strike
         self.index = self.strategy.index
@@ -117,7 +118,7 @@ class LegBuilder:
         # print(f'socket data from publisher for {self.leg_name} and data is \n {data["ExchangeInstrumentID"]}, {data["LastTradedPrice"]}')
         self.market_data.append(data)
         self.market_data_event.set()
-        # print(self.market_data)
+        #print(f'Received market data: {self.market_data}')
 
     async def reentry_logic(self):
         print('inside reentry function')
@@ -136,7 +137,7 @@ class LegBuilder:
                         order = self.xts.place_market_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
                                                             "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":0,
                                                                 "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
-
+                        self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, Re-entry, {self.position} order placed at {self.entry_price}')
                         order_placed=True
                         print('breaking out of while loop')
                         break
@@ -148,7 +149,7 @@ class LegBuilder:
                         order = self.xts.place_market_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
                                                             "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":0,
                                                                 "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
-
+                        self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, Re-entry, {self.position} order placed at {self.entry_price}')
                         order_placed=True
                         print('breaking out of while loop')
                         break
@@ -194,6 +195,7 @@ class LegBuilder:
                                               "limitPrice": trigger_price, 'stopPrice':self.sl_price, 'orderUniqueIdentifier': orderid})
             order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id, "orderSide": orderSide,
                                             "orderQuantity":traded_quantity, "limitPrice": trigger_price, 'stopPrice':self.sl_price, 'orderUniqueIdentifier': orderid})    
+            self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, Re-entry SL {orderSide} order placed at {self.sl_price}')
             self.trade_data_event.clear()
     
     async def stoploss_trail(self, ltp, trade_position):
@@ -229,6 +231,7 @@ class LegBuilder:
                         "orderUniqueIdentifier": order_uid
                         }
                     self.xts.modify_order(params)
+                    self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, SL updated to {self.sl_price}')
                 else:
                     pass
         elif (self.trailing_sl) and (trade_position=='short') :       
@@ -261,6 +264,7 @@ class LegBuilder:
                         "orderUniqueIdentifier": order_uid
                         }
                     self.xts.modify_order(params)
+                    self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, SL updated to {self.sl_price}')
 
                 else:
                     pass
@@ -468,6 +472,10 @@ class LegBuilder:
         ltp = json.loads(ltp_data[0])['LastTradedPrice']
         self.entry_price = float(ltp)
         # print(f'entry_price before placing order is {self.entry_price}')
+
+        self.instrument = self.expiry_df[self.expiry_df['instrument_token']== self.instrument_id].iloc[0]
+        self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, entry_price before placing order is {self.entry_price}')
+       
         if self.range_breakout:
             timeframe = self.range_breakout['timeframe']
             start_time = self.strategy.entry_time
@@ -513,6 +521,7 @@ class LegBuilder:
             # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
             order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position, "orderQuantity":int(self.total_lots * self.lot_size), "limitPrice": trigger_price, 'stopPrice':self.entry_price, 'orderUniqueIdentifier': 'rb'})
             print('order placed for range breakout')
+            self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order placed for range breakout with entry price {limit_price}')
             print(order)
         elif self.simple_momentum:
             if self.simple_momentum['value_type'].lower()=='points':
@@ -534,6 +543,7 @@ class LegBuilder:
             # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
             order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position, "orderQuantity":int(self.total_lots * self.lot_size), "limitPrice": trigger_price, 'stopPrice':self.entry_price, 'orderUniqueIdentifier': self.leg_name})
             print(f"Order placed for {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}")
+            self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order placed for simple momentum {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}')
             print(order)
         else:
             # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
@@ -548,6 +558,7 @@ class LegBuilder:
             order = self.xts.place_market_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
                                       "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":0,
                                         "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
+            self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol} market order placed')
         # self.pegasus.log(order)
         self.publisher.add_trade_subscriber(self)
         self.publisher.add_subscriber(self, [self.instrument_id])
@@ -572,6 +583,9 @@ class LegBuilder:
             trade = {'symbol': self.instrument_id, 'entry_price': self.entry_price, 'trade_price': self.trade_entry_price,  'trade' : trade_side, 'quantity' : traded_quantity, 'timestamp': entry_timestmap, 'entry_slippage': round((self.entry_price - self.trade_entry_price), 2)}
             # print(f'instrument traded at avg price of {self.trade_entry_price}, side {trade_side},\n with quantity {traded_quantity} and executed at  {entry_timestmap} and slippage is {entry_slippage}')
             # print(trade)
+            # print(f'entry_price before placing order is {self.entry_price}')
+            self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order filled {self.entry_price}')
+            
         # print(f'placing SL order now for {self.leg_name} SL points {self.stop_loss}')
         if self.stop_loss[0].lower()=='points':
             self.stop_loss = self.stop_loss[1]
@@ -592,8 +606,8 @@ class LegBuilder:
         
         order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id,
                                            "orderSide": orderSide, "orderQuantity":traded_quantity, "limitPrice": trigger_price, 'stopPrice':self.sl_price, 'orderUniqueIdentifier': orderid})
+        self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, SL order placed with limit price {self.sl_price}')
         # self.pegasus.log(order)
-
 
     async def calculate_mtm(self):
         quantity = self.lot_size*self.total_lots 

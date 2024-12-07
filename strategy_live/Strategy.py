@@ -2,9 +2,12 @@ import json
 from datetime import datetime
 from typing import List, Dict, Any
 import pandas as pd
-from utils import get_atm, filter_dataframe, report_generator, get_base
+from utils import get_atm, filter_dataframe, report_generator, get_base, Logger
 import asyncio
 import sys
+import os
+
+sys.path.append(os.path.abspath('../../Sagar_common'))
 
 try:
     from common_function import fetch_parameter
@@ -39,9 +42,10 @@ class Strategy:
         print('calculating master db')
         self.df = self.xts.get_master_db()
         print('calculation done')
-        self.base = get_base(self.index) #100 if self.index == 'NIFTY BANK' else 50
+        self.base = get_base(self.index, stike_differences) #100 if self.index == 'NIFTY BANK' else 50
         self.total_pnl = 0
         self.trail_flag = False
+        self.logger = Logger(f'{self.name}_log.txt')
         # self.legs = legs
     
 
@@ -105,6 +109,7 @@ class Strategy:
                                 print(f'pe_price is {pe_price}')
                             print(f'implied futures is {underlying_ltp}')
                 print(underlying_ltp)
+                self.logger.log(f"Underlying LTP: {underlying_ltp}, Underlying: {self.underlying}")
                 return underlying_ltp
                 # return None
             except Exception as e:
@@ -167,6 +172,8 @@ class Strategy:
                 # print(f'total_pnl {self.total_pnl} is below overall stoploss {self.overall_sl}')
                 for leg in legs:
                     self.xts.complete_square_off(leg)
+
+                self.logger.log(f'squaring off everything, as SL got hit')
                 print('squaring off everything, as SL got hit')
                 # legs[0].soc.disconnect()
                 break
@@ -175,12 +182,15 @@ class Strategy:
                 for leg in legs:
                     self.xts.complete_square_off(leg)
                 print('squaring off everything, target acheived')
+                self.logger.log(f'squaring off everything, target acheived')
                 # legs[0].soc.disconnect()
 
                 break
             time_now = datetime.now()
             await asyncio.sleep(3)
         print('squaring off because time is over')
+        self.logger.log(f'squaring off because time is over')
+        
         for leg in legs:
                     self.xts.complete_square_off(leg)
         asyncio.sleep(5)
