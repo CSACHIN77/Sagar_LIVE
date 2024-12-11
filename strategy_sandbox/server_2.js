@@ -74,23 +74,34 @@ const pushDataInRealTime = async () => {
 
   while (true) {
     try {
+      const query = `SELECT id, OverallData, LastUpdateTime FROM ${TABLE_NAME} WHERE id > ${lastId} ORDER BY LastUpdateTime ASC LIMIT 1000000`;
       const conn = await pool.getConnection();
-      const [rows] = await conn.query(
-        `SELECT id, OverallData FROM ${TABLE_NAME} WHERE id > ? ORDER BY JSON_EXTRACT(OverallData, "$.LastUpdateTime") ASC`, [lastId]
-      );
+      // Log the complete query
+      // console.log('Executing query:', query);
+
+      // Execute the query
+      const [rows] = await conn.query(query);
+     
+      // const query = `SELECT id, OverallData FROM ${TABLE_NAME} ORDER BY LastUpdateTime LIMIT 100000`;
+      // console.log('Executing query:', query); // Log the query and parameters
+  
+      // const [rows] = await conn.query(
+      //   `SELECT id, OverallData, LastUpdateTime FROM ${TABLE_NAME} WHERE id > ? ORDER BY LastUpdateTime ASC LIMIT 100000`, [lastId]
+      // );
+      
       conn.release();
 
       let i = 0;
       while (i < rows.length) {
         const batch = [];
         const row = rows[i];
-        const currentOverallData = JSON.parse(row.OverallData);
+        const currentOverallData = row.OverallData;
         const currentLastUpdateTime = currentOverallData.LastUpdateTime;
 
         // Collect all rows with the same LastUpdateTime
         while (i < rows.length) {
           const row = rows[i];
-          const overallData = JSON.parse(row.OverallData);
+          const overallData = row.OverallData;
           if (overallData.LastUpdateTime === currentLastUpdateTime) {
             batch.push({
               id: row.id,
@@ -112,7 +123,7 @@ const pushDataInRealTime = async () => {
 
         // Calculate time difference to the next batch
         if (i < rows.length) {
-          const nextOverallData = JSON.parse(rows[i].OverallData);
+          const nextOverallData = rows[i].OverallData;
           const nextLastUpdateTime = nextOverallData.LastUpdateTime;
           const timeDifference = (nextLastUpdateTime - currentLastUpdateTime) * 1000;
           
