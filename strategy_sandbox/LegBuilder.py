@@ -229,7 +229,7 @@ class LegBuilder:
     
     async def stoploss_trail(self, ltp, trade_position):
 
-        # print("inside stoploss_trail function")
+        print("inside stoploss_trail function")
         if (self.trailing_sl) and trade_position =='long':
             price_gap = ltp - self.entry_price
             if price_gap > self.trailing_sl["priceMove"]:

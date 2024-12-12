@@ -18,8 +18,8 @@ class Publisher:
                 self.subscribers.remove(sub)
 
     def publish_data(self, data):
-        data = data['data']['OverallData']
-        data = json.loads(data)
+        # data = data['data']['OverallData']
+        # data = json.loads(data)
         for sub in self.subscribers:
             for instrument in sub['instrument_token']:
                 # print(f"data_instrument {data['ExchangeInstrumentID']} and instrument is {instrument}")

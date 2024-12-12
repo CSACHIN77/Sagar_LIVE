@@ -13,7 +13,7 @@ class MDSocket_io:
         self.publisher = publisher
         self.sid = socketio.Client(logger=False, engineio_logger=False)
         self.market_socket_data = []
-        
+        self.counter = 1
         self.register_event_handlers()
         self.current_data_time  = None
         self.reconnection_delay = reconnection_delay
@@ -54,21 +54,21 @@ class MDSocket_io:
         logger.log(f'Socket reconnected @ {datetime.now()}')
 
     def on_message(self, data):
-
         try:
-            # print(data['data'])
-            overallData = data['data'][0]['OverallData']
-            # print(overallData)
-            exchangeInstrumentID = overallData['ExchangeInstrumentID']
-            if exchangeInstrumentID in self.subscribed_symbols:
-                self.publisher.publish_data(data)
-                
-            self.current_data_time = overallData
-            self.current_data_time = self.current_data_time['LastUpdateTime']
-            # print(self.current_data_time)
+            if isinstance(data['data'], list):
+                for instrument_data in data['data']:
+                    overallData = instrument_data['OverallData']
+                    # print(overallData)
+                    exchangeInstrumentID = overallData['ExchangeInstrumentID']
+                    if exchangeInstrumentID in self.subscribed_symbols:
+                        self.publisher.publish_data(overallData)
+                        
+                    self.current_data_time = overallData
+                    self.current_data_time = overallData['LastUpdateTime']
+                # print(self.current_data_time)
         except Exception as e:
-            print(data['data'])
-            print(f"Error processing data: {e}")
+            # print(data['data'])
+            print(f"Error processing data: {e} ")
 
     def on_disconnect(self):
         print('Market Data Socket disconnected!')

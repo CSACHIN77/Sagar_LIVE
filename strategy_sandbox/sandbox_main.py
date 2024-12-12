@@ -55,7 +55,8 @@ async def run_strategy(xts, strategy_details):
         print(f'sleeping for {(strategy.entry_time - time_now).total_seconds()}')
         await asyncio.sleep((strategy.entry_time - time_now).total_seconds())
 
-    underlying_ltp = strategy.get_underlying_ltp()
+    underlying_ltp = 53600#strategy.get_underlying_ltp()
+    print(f"underlying ltp is {underlying_ltp}")
     if not underlying_ltp:
         retry_counter = 0
         while retry_counter <=3:
@@ -98,7 +99,7 @@ async def main():
 
     strategy_details_1 = {
         'name': 'strategy1', 'index': 'NIFTY BANK', 'underlying': 'spot', 'strategy_type': 'intraday',
-        'entry_time': "12:01", 'last_entry_time': "23:59", 'exit_time': "23:59", 'square_off': "partial",
+        'entry_time': "11:01", 'last_entry_time': "23:59", 'exit_time': "23:59", 'square_off': "partial",
         'overall_sl': 3000, 'overall_target': 4000,                   
         'trailing_for_strategy': {"type": "lock_and_trail", "profit": 2000, "lock_value": 1300, "trail_level":  200, "trail_value": 100}, 
         'implied_futures_expiry': 'current', 'socket':soc
