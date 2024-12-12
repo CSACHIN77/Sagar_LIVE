@@ -183,8 +183,9 @@ class XTS:
             time.sleep(2)
             current_data_time = socket.current_data_time
         print(f"current time is {current_data_time}")
-        normal_timestamp = datetime.fromtimestamp(current_data_time) #- timedelta(hours=5)
+        normal_timestamp = datetime.fromtimestamp(current_data_time) - timedelta(days= 1, hours=5, minutes=30)
         instrument_ids = [instrument['exchangeInstrumentID'] for instrument in instruments]
+        print(f"parsed timestamp is {normal_timestamp} and instrument is {instrument_ids}")
         
         try:
             connection = mysql.connector.connect(
