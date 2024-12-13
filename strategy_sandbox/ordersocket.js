@@ -63,87 +63,190 @@ const marketSocket = ioClient.connect('http://localhost:5001');
 const latestLTPs = {};
 
 // Listen for LTP updates from marketSocket
+// marketSocket.on('message', (data) => {
+//   try {
+//     console.log(data.data);
+//     if (data && data.data && data.data.OverallData) {
+//       const marketData = JSON.parse(data.data.OverallData);
+//       const { ExchangeInstrumentID, LastTradedPrice } = marketData;
+
+//       latestLTPs[ExchangeInstrumentID] = LastTradedPrice;
+//       // console.log(latestLTPs)
+//       pendingOrders = pendingOrders.filter(order => {
+//         if (
+//           order.exchangeInstrumentID === ExchangeInstrumentID &&
+//           // order.OrderType === 'Limit' &&
+//           order.OrderSide === 'sell' &&
+//           LastTradedPrice <= order.OrderPrice // Condition to check if price meets or goes below target
+//         ) {
+//           // If LTP has reached or is below the order price, execute the order
+//           order.OrderStatus = 'Filled';
+//           // order.OrderAverageTradedPrice = LastTradedPrice;
+//           order.OrderAverageTradedPrice = order.OrderPrice;
+//           order.LastUpdateDateTime = new Date().toISOString();
+
+//           // Save Filled order to order book
+//           orderbook.push(order);
+//           saveOrderBook();
+
+//           // Emit the order update via WebSocket
+//           io.emit('orderUpdate', order);
+//           logToFile(`Order Filled: ${JSON.stringify(order)}`);
+
+//           // Prepare and emit trade update
+//           const tradeUpdate = {
+//             LoginID: order.LoginID || "XTS",
+//             ClientID: order.ClientID || "XTSCLI",
+//             AppOrderID: order.AppOrderID,
+//             OrderReferenceID: order.OrderReferenceID || "",
+//             GeneratedBy: order.GeneratedBy || "TWSAPI",
+//             ExchangeOrderID: `EXCHANGE${Date.now()}`, // Generate a unique exchange order ID
+//             OrderCategoryType: order.OrderCategoryType || "NORMAL",
+//             ExchangeSegment: order.ExchangeSegment || "NSECM",
+//             ExchangeInstrumentID: order.exchangeInstrumentID,
+//             OrderSide: order.OrderSide,
+//             OrderType: order.OrderType,
+//             ProductType: order.ProductType || "NRML",
+//             TimeInForce: order.TimeInForce || "DAY",
+//             OrderPrice: order.OrderPrice,
+//             OrderQuantity: order.OrderQuantity || 1,
+//             OrderStopPrice: order.OrderStopPrice || 0,
+//             OrderStatus: "Filled",
+//             OrderAverageTradedPrice: LastTradedPrice,
+//             LeavesQuantity: 0,
+//             CumulativeQuantity: order.OrderQuantity || 1,
+//             OrderDisclosedQuantity: order.OrderDisclosedQuantity || 0,
+//             OrderGeneratedDateTime: order.OrderGeneratedDateTime || new Date().toISOString(),
+//             ExchangeTransactTime: new Date().toISOString(),
+//             LastUpdateDateTime: order.LastUpdateDateTime,
+//             OrderUniqueIdentifier: order.OrderUniqueIdentifier || "454845",
+//             OrderLegStatus: "SingleOrderLeg",
+//             LastTradedPrice: LastTradedPrice,
+//             LastTradedQuantity: order.OrderQuantity || 1,
+//             LastExecutionTransactTime: new Date().toISOString(),
+//             ExecutionID: `EXEC${Date.now()}`, // Unique execution ID
+//             ExecutionReportIndex: 3,
+//             IsSpread: false,
+//             MessageCode: 9005,
+//             MessageVersion: 1,
+//             TokenID: 0,
+//             ApplicationType: 0,
+//             SequenceNumber: 0
+//           };
+
+//           // Save to tradebook
+//           tradebook.push(tradeUpdate);
+//           saveTradeBook();
+
+//           // Emit trade update on tradeSocket namespace
+//           io.emit('tradeUpdate', tradeUpdate);
+//           logToFile(`Trade update emitted: ${JSON.stringify(tradeUpdate)}`);
+
+//           return false; // Remove from pending list
+//         }
+//         return true; // Keep order in pending list if not Filled
+//       });
+//     } else {
+//       logToFile(`Invalid data received from marketSocket: ${JSON.stringify(data)}`);
+//     }
+//   } catch (error) {
+//     logToFile(`Error parsing marketSocket data: ${error.message}`);
+//   }
+// });
 marketSocket.on('message', (data) => {
   try {
-    if (data && data.data && data.data.OverallData) {
-      const marketData = JSON.parse(data.data.OverallData);
-      const { ExchangeInstrumentID, LastTradedPrice } = marketData;
+    // Check if data and data.data are valid and is an array
+    if (data && Array.isArray(data.data)) {
+      // console.log("Processing market data...");
+      
+      data.data.forEach((entry) => {
+        // Ensure entry contains OverallData
+        if (entry && entry.OverallData) {
+          const marketData = entry.OverallData;
+          const { ExchangeInstrumentID, LastTradedPrice } = marketData;
 
-      latestLTPs[ExchangeInstrumentID] = LastTradedPrice;
-      // console.log(latestLTPs)
-      pendingOrders = pendingOrders.filter(order => {
-        if (
-          order.exchangeInstrumentID === ExchangeInstrumentID &&
-          // order.OrderType === 'Limit' &&
-          order.OrderSide === 'sell' &&
-          LastTradedPrice <= order.OrderPrice // Condition to check if price meets or goes below target
-        ) {
-          // If LTP has reached or is below the order price, execute the order
-          order.OrderStatus = 'Filled';
-          // order.OrderAverageTradedPrice = LastTradedPrice;
-          order.OrderAverageTradedPrice = order.OrderPrice;
-          order.LastUpdateDateTime = new Date().toISOString();
+          if (ExchangeInstrumentID !== undefined && LastTradedPrice !== undefined) {
+            // Store the latest LastTradedPrice for each ExchangeInstrumentID
+            latestLTPs[ExchangeInstrumentID] = LastTradedPrice;
 
-          // Save Filled order to order book
-          orderbook.push(order);
-          saveOrderBook();
 
-          // Emit the order update via WebSocket
-          io.emit('orderUpdate', order);
-          logToFile(`Order Filled: ${JSON.stringify(order)}`);
+            // Process pending order
+            // console.log("pending orders", pendingOrders);
+            pendingOrders = pendingOrders.filter((order) => {
+              if (
+                order.exchangeInstrumentID === ExchangeInstrumentID &&
+                order.OrderSide.toLowerCase() === 'sell' &&
+                LastTradedPrice <= order.OrderPrice // Check if price meets or goes below target
+              ) {
+                // If LTP has reached or is below the order price, execute the order
+                console.log("pending orders", pendingOrders);
+                order.OrderStatus = 'Filled';
+                order.OrderAverageTradedPrice = order.OrderPrice;
+                order.LastUpdateDateTime = new Date().toISOString();
 
-          // Prepare and emit trade update
-          const tradeUpdate = {
-            LoginID: order.LoginID || "XTS",
-            ClientID: order.ClientID || "XTSCLI",
-            AppOrderID: order.AppOrderID,
-            OrderReferenceID: order.OrderReferenceID || "",
-            GeneratedBy: order.GeneratedBy || "TWSAPI",
-            ExchangeOrderID: `EXCHANGE${Date.now()}`, // Generate a unique exchange order ID
-            OrderCategoryType: order.OrderCategoryType || "NORMAL",
-            ExchangeSegment: order.ExchangeSegment || "NSECM",
-            ExchangeInstrumentID: order.exchangeInstrumentID,
-            OrderSide: order.OrderSide,
-            OrderType: order.OrderType,
-            ProductType: order.ProductType || "NRML",
-            TimeInForce: order.TimeInForce || "DAY",
-            OrderPrice: order.OrderPrice,
-            OrderQuantity: order.OrderQuantity || 1,
-            OrderStopPrice: order.OrderStopPrice || 0,
-            OrderStatus: "Filled",
-            OrderAverageTradedPrice: LastTradedPrice,
-            LeavesQuantity: 0,
-            CumulativeQuantity: order.OrderQuantity || 1,
-            OrderDisclosedQuantity: order.OrderDisclosedQuantity || 0,
-            OrderGeneratedDateTime: order.OrderGeneratedDateTime || new Date().toISOString(),
-            ExchangeTransactTime: new Date().toISOString(),
-            LastUpdateDateTime: order.LastUpdateDateTime,
-            OrderUniqueIdentifier: order.OrderUniqueIdentifier || "454845",
-            OrderLegStatus: "SingleOrderLeg",
-            LastTradedPrice: LastTradedPrice,
-            LastTradedQuantity: order.OrderQuantity || 1,
-            LastExecutionTransactTime: new Date().toISOString(),
-            ExecutionID: `EXEC${Date.now()}`, // Unique execution ID
-            ExecutionReportIndex: 3,
-            IsSpread: false,
-            MessageCode: 9005,
-            MessageVersion: 1,
-            TokenID: 0,
-            ApplicationType: 0,
-            SequenceNumber: 0
-          };
+                // Save filled order to orderbook
+                orderbook.push(order);
+                saveOrderBook();
 
-          // Save to tradebook
-          tradebook.push(tradeUpdate);
-          saveTradeBook();
+                // Emit the order update via WebSocket
+                io.emit('orderUpdate', order);
+                logToFile(`Order Filled: ${JSON.stringify(order)}`);
 
-          // Emit trade update on tradeSocket namespace
-          io.emit('tradeUpdate', tradeUpdate);
-          logToFile(`Trade update emitted: ${JSON.stringify(tradeUpdate)}`);
+                // Prepare and emit trade update
+                const tradeUpdate = {
+                  LoginID: order.LoginID || "XTS",
+                  ClientID: order.ClientID || "XTSCLI",
+                  AppOrderID: order.AppOrderID,
+                  OrderReferenceID: order.OrderReferenceID || "",
+                  GeneratedBy: order.GeneratedBy || "TWSAPI",
+                  ExchangeOrderID: `EXCHANGE${Date.now()}`, // Generate unique exchange order ID
+                  OrderCategoryType: order.OrderCategoryType || "NORMAL",
+                  ExchangeSegment: order.ExchangeSegment || "NSECM",
+                  ExchangeInstrumentID: order.exchangeInstrumentID,
+                  OrderSide: order.OrderSide,
+                  OrderType: order.OrderType,
+                  ProductType: order.ProductType || "NRML",
+                  TimeInForce: order.TimeInForce || "DAY",
+                  OrderPrice: order.OrderPrice,
+                  OrderQuantity: order.OrderQuantity || 1,
+                  OrderStopPrice: order.OrderStopPrice || 0,
+                  OrderStatus: "Filled",
+                  OrderAverageTradedPrice: LastTradedPrice,
+                  LeavesQuantity: 0,
+                  CumulativeQuantity: order.OrderQuantity || 1,
+                  OrderDisclosedQuantity: order.OrderDisclosedQuantity || 0,
+                  OrderGeneratedDateTime: order.OrderGeneratedDateTime || new Date().toISOString(),
+                  ExchangeTransactTime: new Date().toISOString(),
+                  LastUpdateDateTime: order.LastUpdateDateTime,
+                  OrderUniqueIdentifier: order.OrderUniqueIdentifier || "454845",
+                  OrderLegStatus: "SingleOrderLeg",
+                  LastTradedPrice: LastTradedPrice,
+                  LastTradedQuantity: order.OrderQuantity || 1,
+                  LastExecutionTransactTime: new Date().toISOString(),
+                  ExecutionID: `EXEC${Date.now()}`, // Unique execution ID
+                  ExecutionReportIndex: 3,
+                  IsSpread: false,
+                  MessageCode: 9005,
+                  MessageVersion: 1,
+                  TokenID: 0,
+                  ApplicationType: 0,
+                  SequenceNumber: 0,
+                };
 
-          return false; // Remove from pending list
+                // Save to tradebook
+                tradebook.push(tradeUpdate);
+                saveTradeBook();
+
+                // Emit trade update on tradeSocket namespace
+                io.emit('tradeUpdate', tradeUpdate);
+                logToFile(`Trade update emitted: ${JSON.stringify(tradeUpdate)}`);
+
+                return false; // Remove from pending orders
+              }
+              return true; // Keep order in pending list if not filled
+            });
+          }
         }
-        return true; // Keep order in pending list if not Filled
       });
     } else {
       logToFile(`Invalid data received from marketSocket: ${JSON.stringify(data)}`);
@@ -156,7 +259,7 @@ marketSocket.on('message', (data) => {
 // Handle WebSocket order placement from client
 io.on('connection', (socket) => {
   console.log('Client connected to OrderSocket');
-  logToFile('Client connected to OrderSocket');
+  // logToFile('Client connected to OrderSocket');
 
   socket.on('placeOrder', (orderParams) => {
     const { OrderType, OrderSide, exchangeInstrumentID, OrderPrice } = orderParams;
@@ -237,7 +340,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Client disconnected from OrderSocket');
-    logToFile('Client disconnected from OrderSocket');
+    // logToFile('Client disconnected from OrderSocket');
   });
 });
 
@@ -262,6 +365,7 @@ app.post('/placeMarketOrder', (req, res) => {
     }
 
     const latestPrice = latestLTPs[exchangeInstrumentID];
+    console.log(latestLTPs)
     if (latestPrice === undefined) {
       return res.status(400).json({ message: 'No latest price available for the given instrument ID.' });
     }
@@ -583,5 +687,5 @@ app.post('/placeSLOrder', (req, res) => {
 });
 server.listen(8050, () => {
   console.log('OrderSocket server running on port 8050');
-  logToFile('OrderSocket server running on port 8050');
+  // logToFile('OrderSocket server running on port 8050');
 });
