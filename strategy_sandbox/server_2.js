@@ -67,78 +67,204 @@ const logBatchInfo = (batch, timestamp) => {
   // console.log('Last record in batch:', batch[batch.length - 1]);
   console.log('========================\n');
 };
-
-// Fetch and push data based on `database_time` mode
 const pushDataInRealTime = async () => {
-  let lastId = readLastId();
-
-  while (true) {
-    try {
-      const query = `SELECT id, OverallData, LastUpdateTime FROM ${TABLE_NAME} WHERE id > ${lastId} ORDER BY LastUpdateTime ASC LIMIT 1000000`;
-      const conn = await pool.getConnection();
-      // Log the complete query
-      // console.log('Executing query:', query);
-
-      // Execute the query
-      const [rows] = await conn.query(query);
-     
-      // const query = `SELECT id, OverallData FROM ${TABLE_NAME} ORDER BY LastUpdateTime LIMIT 100000`;
-      // console.log('Executing query:', query); // Log the query and parameters
+    let lastId = readLastId();
+    // Initialize tempOverallData as a Map with ExchangeInstrumentID as key
+    const tempOverallData = new Map();
   
-      // const [rows] = await conn.query(
-      //   `SELECT id, OverallData, LastUpdateTime FROM ${TABLE_NAME} WHERE id > ? ORDER BY LastUpdateTime ASC LIMIT 100000`, [lastId]
-      // );
-      
-      conn.release();
-
-      let i = 0;
-      while (i < rows.length) {
-        const batch = [];
-        const row = rows[i];
-        const currentOverallData = row.OverallData;
-        const currentLastUpdateTime = currentOverallData.LastUpdateTime;
-
-        // Collect all rows with the same LastUpdateTime
+    while (true) {
+      try {
+        const query = `SELECT id, OverallData, LastUpdateTime FROM ${TABLE_NAME} WHERE id > ${lastId} ORDER BY LastUpdateTime ASC LIMIT 1000000`;
+        const conn = await pool.getConnection();
+        const [rows] = await conn.query(query);
+        conn.release();
+  
+        let i = 0;
         while (i < rows.length) {
+          const currentBatchUpdates = new Set(); // Track which instruments are updated in current batch
+          const batch = [];
           const row = rows[i];
-          const overallData = row.OverallData;
-          if (overallData.LastUpdateTime === currentLastUpdateTime) {
-            batch.push({
-              id: row.id,
-              OverallData: overallData
-            });
-            i++;
-          } else {
-            break;
+          const currentOverallData = row.OverallData;
+          const currentLastUpdateTime = currentOverallData.LastUpdateTime;
+  
+          // First, process all updates for this timestamp
+          while (i < rows.length) {
+            const row = rows[i];
+            const overallData = row.OverallData;
+            if (overallData.LastUpdateTime === currentLastUpdateTime) {
+              const instrumentId = overallData.ExchangeInstrumentID;
+              currentBatchUpdates.add(instrumentId); // Mark this instrument as updated
+  
+              // If this instrument exists in tempOverallData, merge with existing data
+              if (tempOverallData.has(instrumentId)) {
+                const existingData = tempOverallData.get(instrumentId);
+                tempOverallData.set(instrumentId, {
+                  ...existingData,
+                  ...overallData,
+                  _lastUpdated: Date.now()
+                });
+              } else {
+                // If it's a new instrument, add it to tempOverallData
+                tempOverallData.set(instrumentId, {
+                  ...overallData,
+                  _lastUpdated: Date.now()
+                });
+              }
+  
+              batch.push({
+                id: row.id,
+                OverallData: tempOverallData.get(instrumentId)
+              });
+              i++;
+            } else {
+              break;
+            }
+          }
+  
+          // Now add all instruments that weren't updated in this batch but exist in tempOverallData
+          for (const [instrumentId, historicalData] of tempOverallData.entries()) {
+            if (!currentBatchUpdates.has(instrumentId)) {
+              batch.push({
+                id: lastId, // Use the last known ID since this is historical data
+                OverallData: {
+                  ...historicalData,
+                  LastUpdateTime: currentLastUpdateTime // Update timestamp to maintain consistency
+                }
+              });
+            }
+          }
+  
+          // Sort batch by ExchangeInstrumentID for consistency
+          batch.sort((a, b) => 
+            a.OverallData.ExchangeInstrumentID - b.OverallData.ExchangeInstrumentID
+          );
+  
+          // Log the state for debugging
+          console.log(`Processing batch at ${new Date(currentLastUpdateTime * 1000).toISOString()}`);
+          console.log(`Total instruments tracked: ${tempOverallData.size}`);
+          console.log(`Instruments updated in this batch: ${currentBatchUpdates.size}`);
+          console.log(`Total items in batch (including historical): ${batch.length}`);
+  
+          // Emit the complete batch
+          io.emit('message', { data: batch });
+          logBatchInfo(batch, currentLastUpdateTime);
+  
+          // Update lastId after processing the batch
+          // Only update lastId based on actual updates, not historical data
+          const lastUpdatedItem = batch.find(item => currentBatchUpdates.has(item.OverallData.ExchangeInstrumentID));
+          if (lastUpdatedItem) {
+            writeLastId(lastUpdatedItem.id);
+            lastId = lastUpdatedItem.id;
+          }
+  
+          // Calculate and wait for next batch
+          if (i < rows.length) {
+            const nextOverallData = rows[i].OverallData;
+            const nextLastUpdateTime = nextOverallData.LastUpdateTime;
+            const timeDifference = (nextLastUpdateTime - currentLastUpdateTime) * 1000;
+            
+            console.log(`Waiting ${timeDifference}ms for next batch...\n`);
+            await new Promise(resolve => setTimeout(resolve, timeDifference));
           }
         }
-
-        // Emit the batch and log information
-        io.emit('message', { data: batch });
-        logBatchInfo(batch, currentLastUpdateTime);
-
-        // Update lastId after processing the batch
-        writeLastId(batch[batch.length - 1].id);
-        lastId = batch[batch.length - 1].id;
-
-        // Calculate time difference to the next batch
-        if (i < rows.length) {
-          const nextOverallData = rows[i].OverallData;
-          const nextLastUpdateTime = nextOverallData.LastUpdateTime;
-          const timeDifference = (nextLastUpdateTime - currentLastUpdateTime) * 1000;
-          
-          console.log(`Waiting ${timeDifference}ms for next batch...\n`);
-          // Wait for the time difference
-          await new Promise(resolve => setTimeout(resolve, timeDifference));
-        }
+      } catch (error) {
+        console.error('Error in data processing:', error);
+        console.error('Current state snapshot:', {
+          trackedInstruments: tempOverallData.size,
+          lastProcessedId: lastId
+        });
+        await new Promise(resolve => setTimeout(resolve, 5000));
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, 5000));
     }
-  }
-};
+  };
+  
+  // Helper function to clean up old data (optional)
+//   const cleanupOldData = (tempOverallData, maxAgeMs = 24 * 60 * 60 * 1000) => {
+//     const now = Date.now();
+//     const removedInstruments = [];
+    
+//     for (const [instrumentId, data] of tempOverallData.entries()) {
+//       if (now - data._lastUpdated > maxAgeMs) {
+//         tempOverallData.delete(instrumentId);
+//         removedInstruments.push(instrumentId);
+//       }
+//     }
+    
+//     if (removedInstruments.length > 0) {
+//       console.log(`Cleaned up ${removedInstruments.length} stale instruments:`, removedInstruments);
+//     }
+//   };
+// Fetch and push data based on `database_time` mode
+// const pushDataInRealTime = async () => {
+//   let lastId = readLastId();
+
+//   while (true) {
+//     try {
+//       const query = `SELECT id, OverallData, LastUpdateTime FROM ${TABLE_NAME} WHERE id > ${lastId} ORDER BY LastUpdateTime ASC LIMIT 1000000`;
+//       const conn = await pool.getConnection();
+//       // Log the complete query
+//       // console.log('Executing query:', query);
+
+//       // Execute the query
+//       const [rows] = await conn.query(query);
+     
+//       // const query = `SELECT id, OverallData FROM ${TABLE_NAME} ORDER BY LastUpdateTime LIMIT 100000`;
+//       // console.log('Executing query:', query); // Log the query and parameters
+  
+//       // const [rows] = await conn.query(
+//       //   `SELECT id, OverallData, LastUpdateTime FROM ${TABLE_NAME} WHERE id > ? ORDER BY LastUpdateTime ASC LIMIT 100000`, [lastId]
+//       // );
+      
+//       conn.release();
+
+//       let i = 0;
+//       while (i < rows.length) {
+//         const batch = [];
+//         const row = rows[i];
+//         const currentOverallData = row.OverallData;
+//         const currentLastUpdateTime = currentOverallData.LastUpdateTime;
+
+//         // Collect all rows with the same LastUpdateTime
+//         while (i < rows.length) {
+//           const row = rows[i];
+//           const overallData = row.OverallData;
+//           if (overallData.LastUpdateTime === currentLastUpdateTime) {
+//             batch.push({
+//               id: row.id,
+//               OverallData: overallData
+//             });
+//             i++;
+//           } else {
+//             break;
+//           }
+//         }
+
+//         // Emit the batch and log information
+//         io.emit('message', { data: batch });
+//         logBatchInfo(batch, currentLastUpdateTime);
+
+//         // Update lastId after processing the batch
+//         writeLastId(batch[batch.length - 1].id);
+//         lastId = batch[batch.length - 1].id;
+
+//         // Calculate time difference to the next batch
+//         if (i < rows.length) {
+//           const nextOverallData = rows[i].OverallData;
+//           const nextLastUpdateTime = nextOverallData.LastUpdateTime;
+//           const timeDifference = (nextLastUpdateTime - currentLastUpdateTime) * 1000;
+          
+//           console.log(`Waiting ${timeDifference}ms for next batch...\n`);
+//           // Wait for the time difference
+//           await new Promise(resolve => setTimeout(resolve, timeDifference));
+//         }
+//       }
+//     } catch (error) {
+//       console.error('Error fetching data:', error);
+//       // Wait before retrying
+//       await new Promise(resolve => setTimeout(resolve, 5000));
+//     }
+//   }
+// };
 
 // Fetch and push data based on `data_per_minute` mode
 const pushDataPerMinute = async (dataPerMinute) => {
