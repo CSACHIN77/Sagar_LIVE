@@ -73,21 +73,25 @@ async def run_strategy(xts, strategy_details):
         base = 100 if strategy.index == 'NIFTY BANK' else 50
         underlying_atm = get_atm(underlying_ltp, base)
 
-        leg1 = LegBuilder(xts, soc, interactive_soc, f"{strategy.name}leg1", strategy, publisher, 2, 'sell', 'CE', 'current',
-                        {'strike_selection': 'strike', 'value': 'OTM4'}, underlying_atm, roll_strike=False,
-                        new_strike_selection_criteria=3, stop_loss=['points', 15], trailing_sl=False, no_of_reentry=2, 
+        leg1 = LegBuilder(xts, soc, interactive_soc, f"{strategy.name}leg1", strategy, publisher, 2, 'buy', 'CE', 'current',
+                        {'strike_selection': 'strike', 'value': 'OTM3'}, underlying_atm, roll_strike=False,
+                        new_strike_selection_criteria=3, stop_loss=['points', 20], trailing_sl=False, no_of_reentry=2, 
+                        simple_momentum=False, range_breakout=False)
+        leg2 = LegBuilder(xts, soc, interactive_soc, f"{strategy.name}leg2", strategy, publisher, 2, 'buy', 'PE', 'current',
+                        {'strike_selection': 'strike', 'value': 'OTM3'}, underlying_atm, roll_strike=False,
+                        new_strike_selection_criteria=3, stop_loss=['points', 20], trailing_sl=False, no_of_reentry=2, 
                         simple_momentum=False, range_breakout=False)
         # leg2 = LegBuilder(xts, soc, interactive_soc, f"{strategy.name}leg2", strategy, publisher, 2, 'sell', 'PE', 'current',
         #                 {'strike_selection': 'closest_premium', 'value': 400}, underlying_atm, roll_strike=False,
         #                 new_strike_selection_criteria=3, stop_loss=['points', 15], trailing_sl={"priceMove": 20, "sl_adjustment": 4}, no_of_reentry=2, 
         #                 simple_momentum=False, range_breakout=False)
         
-        # legs = [leg1, leg2]
-        legs = [leg1]
+        legs = [leg1, leg2]
+        # legs = [leg1]
 
         await asyncio.gather(
             process_leg(leg1),
-            # process_leg(leg2),
+            process_leg(leg2),
             strategy.calculate_overall_pnl(legs)
         )
     else:
