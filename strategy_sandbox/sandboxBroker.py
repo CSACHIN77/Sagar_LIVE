@@ -112,21 +112,21 @@ class XTS:
         return response.json()
     
 
-    def cancel_orders(self, exchange_segment, exchange_instrument_id):
-        url = f"{self.base_url}/cancelOrders"
-        payload = {
-            "ExchangeSegment": exchange_segment,
-            "ExchangeInstrumentID": exchange_instrument_id
-        }
+    # def cancel_orders(self, exchange_segment, exchange_instrument_id):
+    #     url = f"{self.base_url}/cancelOrders"
+    #     payload = {
+    #         "ExchangeSegment": exchange_segment,
+    #         "ExchangeInstrumentID": exchange_instrument_id
+    #     }
         
-        response = requests.post(url, json=payload)
+    #     response = requests.post(url, json=payload)
         
-        if response.status_code == 200:
-            print("Orders cancelled successfully:", response.json())
-        else:
-            print("Failed to cancel orders:", response.text)
+    #     if response.status_code == 200:
+    #         print("Orders cancelled successfully:", response.json())
+    #     else:
+    #         print("Failed to cancel orders:", response.text)
         
-        return response.json()
+    #     return response.json()
 
 
 
@@ -180,7 +180,7 @@ class XTS:
         current_data_time = socket.current_data_time
         
         if not current_data_time:
-            time.sleep(2)
+            time.sleep(4)
             current_data_time = socket.current_data_time
         print(f"current time is {current_data_time}")
         normal_timestamp = datetime.fromtimestamp(current_data_time) - timedelta(days= 1, hours=5, minutes=30)
@@ -282,3 +282,94 @@ class XTS:
                 "description": "Error in placing Stop-Limit order",
                 "error_message": str(e),
             }
+
+    def read_orderbook(self, file_path):
+        try:
+            with open(file_path, 'r') as f:
+                orderbook = json.load(f)
+            return orderbook
+        except Exception as e:
+            print(f"Error reading orderbook: {e}")
+            return []
+    def cancel_order(self, app_order_id, orderbook_path="orderbook.json"):
+        try:
+            if os.path.exists(orderbook_path):
+                with open(orderbook_path, 'r') as f:
+                    orderbook = json.load(f)
+            else:
+                print(f"Orderbook file not found: {orderbook_path}")
+                return
+
+            order_found = False
+            updated_orderbook = []
+            for order in orderbook:
+                if order['AppOrderID'] == app_order_id:
+                    order_found = True
+                    print(f"Canceling order with AppOrderID: {app_order_id}")
+                else:
+                    updated_orderbook.append(order) 
+
+            if not order_found:
+                print(f"No order found with AppOrderID: {app_order_id}")
+            else:
+                with open(orderbook_path, 'w') as f:
+                    json.dump(updated_orderbook, f, indent=4)
+                print(f"Order with AppOrderID {app_order_id} removed from the orderbook.")
+
+        except Exception as e:
+            print(f"Error while canceling order with AppOrderID {app_order_id}: {e}")
+
+    def complete_square_off(self, leg, orderbook_path="orderbook.json", tradebook_path="tradebook.json"):
+        try:
+            orderbook = self.read_orderbook(orderbook_path)
+            orderbook_df = pd.DataFrame(orderbook)
+
+            pending_orders = orderbook_df[(orderbook_df['OrderStatus'] == 'New') & 
+                                        (orderbook_df['OrderUniqueIdentifier'].str.startswith(leg.leg_name))]
+            if not pending_orders.empty:
+                app_order_ids = list(set(pending_orders['AppOrderID']))
+                for app_order in app_order_ids:
+                    self.cancel_order(app_order)
+
+            filled_orders = orderbook_df[(orderbook_df['OrderStatus'] == 'Filled') & 
+                                        (orderbook_df['OrderUniqueIdentifier'].str.startswith(leg.leg_name))]
+
+            if not filled_orders.empty:
+                for idx, row in filled_orders.iterrows():
+                    instrument_id = row['exchangeInstrumentID']
+                    order_side = 'BUY' if row['OrderSide'] == 'SELL' else 'SELL'
+                    order_quantity = row['OrderQuantity']
+
+                    order_unique_identifier = f"{leg.leg_name}_squareoff"
+                    market_order_details = {
+                        "exchangeInstrumentID": int(instrument_id),
+                        "orderSide": order_side,
+                        "orderQuantity": int(order_quantity),
+                        "limitPrice": 0,
+                        "stopPrice": 0,
+                        "orderUniqueIdentifier": order_unique_identifier
+                    }
+
+                    status = self.place_market_order(market_order_details)
+                    print(f"Market order status: {status}")
+
+            time.sleep(2)
+            orderbook_df.to_csv('strategy_orderbook.csv', index=False)
+
+            if os.path.exists(tradebook_path):
+                with open(tradebook_path, 'r') as f:
+                    tradebook = json.load(f)
+                time.sleep(2)
+                tradebook_df = pd.DataFrame(tradebook)
+                tradebook_df.drop_duplicates(inplace=True)
+                tradebook_df.to_csv('strategy_tradebook.csv', index=False)
+            else:
+                print(f"Tradebook file not found: {tradebook_path}")
+
+            print("All operations completed. Returning control.")
+            return "completed"
+
+        except Exception as e:
+            print(f"Error in complete_square_off: {e}")
+            raise RuntimeError("Square off operation failed") from e
+

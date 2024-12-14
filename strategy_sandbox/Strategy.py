@@ -118,7 +118,7 @@ class Strategy:
             idx_name = idx.split('_')[0]
             ex_id = int(idx.split('_')[1])
             idx_list[idx_name] = int(ex_id)
-        print(f"index list {idx_list}")
+        # print(f"index list {idx_list}")
         return {'exchangeSegment': 1, 'exchangeInstrumentID': idx_list[self.index]}
 
     def add_leg(self, leg: Any) -> None:
@@ -159,13 +159,14 @@ class Strategy:
                         self.trail_flag = True
                         print(f'trailing stop loss updated to {abs(self.overall_sl)} ')
                         # self.trailing_for_strategy["profit"] = (self.trail_count+1)*self.trailing_for_strategy["profit"]
-            
+            print(f"total pnl of strategy is {self.total_pnl}")
             if self.total_pnl <( 0 - self.overall_sl):
-                # print(f'total_pnl {self.total_pnl} is below overall stoploss {self.overall_sl}')
+                print(f'total_pnl {self.total_pnl} is below overall stoploss {self.overall_sl}')
                 for leg in legs:
                     self.xts.complete_square_off(leg)
                 print('squaring off everything, as SL got hit')
                 # legs[0].soc.disconnect()
+                sys.exit()
                 break
             if self.total_pnl >self.overall_target:
                 print(f'total_pnl {self.total_pnl} is above overall target {self.overall_target}')
@@ -173,6 +174,7 @@ class Strategy:
                     self.xts.complete_square_off(leg)
                 print('squaring off everything, target acheived')
                 # legs[0].soc.disconnect()
+                sys.exit()
 
                 break
             time_now = datetime.now()
@@ -182,8 +184,8 @@ class Strategy:
                     self.xts.complete_square_off(leg)
         asyncio.sleep(5)
         report_generator(self)
-        return
-        # sys.exit()
+        # return
+        sys.exit()
     def convert_to_datetime(self, timestamp):
         today_date = datetime.now().date()
         formatted_time = f"{today_date} {timestamp}:00"

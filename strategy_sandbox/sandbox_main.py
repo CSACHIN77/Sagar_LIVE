@@ -104,7 +104,7 @@ async def main():
     strategy_details_1 = {
         'name': 'strategy1', 'index': 'NIFTY BANK', 'underlying': 'spot', 'strategy_type': 'intraday',
         'entry_time': "11:01", 'last_entry_time': "23:59", 'exit_time': "23:59", 'square_off': "partial",
-        'overall_sl': 3000, 'overall_target': 4000,                   
+        'overall_sl': 300, 'overall_target': 500,                   
         'trailing_for_strategy': {"type": "lock_and_trail", "profit": 2000, "lock_value": 1300, "trail_level":  200, "trail_value": 100}, 
         'implied_futures_expiry': 'current', 'socket':soc
     }

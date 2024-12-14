@@ -508,7 +508,7 @@ class LegBuilder:
         response = self.xts.get_quotes([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}], self.soc)
         print(f"response data is {response}")
         ltp_data = response['result']['listQuotes']
-        print(ltp_data)
+        print(f"ltp data is {ltp_data}")
         ltp = json.loads(ltp_data[0])['LastTradedPrice']
         self.entry_price = float(ltp)
         # print(f'entry_price before placing order is {self.entry_price}')
