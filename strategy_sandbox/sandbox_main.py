@@ -74,7 +74,7 @@ async def run_strategy(xts, strategy_details):
         underlying_atm = get_atm(underlying_ltp, base)
 
         leg1 = LegBuilder(xts, soc, interactive_soc, f"{strategy.name}leg1", strategy, publisher, 2, 'buy', 'CE', 'current',
-                        {'strike_selection': 'strike', 'value': 'OTM3'}, underlying_atm, roll_strike=False,
+                        {'strike_selection': 'strike', 'value': 'OTM3'}, strike=underlying_atm, roll_strike=False,
                         new_strike_selection_criteria=3, stop_loss=['points', 20], trailing_sl=False, no_of_reentry=2, 
                         simple_momentum=False, range_breakout=False)
         leg2 = LegBuilder(xts, soc, interactive_soc, f"{strategy.name}leg2", strategy, publisher, 2, 'buy', 'PE', 'current',
@@ -104,8 +104,8 @@ async def main():
     strategy_details_1 = {
         'name': 'strategy1', 'index': 'NIFTY BANK', 'underlying': 'spot', 'strategy_type': 'intraday',
         'entry_time': "11:01", 'last_entry_time': "23:59", 'exit_time': "23:59", 'square_off': "partial",
-        'overall_sl': 300, 'overall_target': 500,                   
-        'trailing_for_strategy': {"type": "lock_and_trail", "profit": 2000, "lock_value": 1300, "trail_level":  200, "trail_value": 100}, 
+        'overall_sl': 1000, 'overall_target': 3000,                   
+        'trailing_for_strategy': {"type": "lock_and_trail", "profit": 800, "lock_value": 500, "trail_level":  200, "trail_value": 100}, 
         'implied_futures_expiry': 'current', 'socket':soc
     }
    

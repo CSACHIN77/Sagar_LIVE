@@ -12,5 +12,5 @@ db_creds = {
     'user': 'root',
     'password': 'pegasus',
     'database': 'sagar_dataharvesting',
-    'table_name': 'data_harvesting_20241114',
+    'table_name': 'data_harvesting_20241210',
 }

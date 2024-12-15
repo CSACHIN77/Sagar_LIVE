@@ -1,0 +1,44 @@
+{
+    "name": "strategy2", 
+    "index": "NIFTY BANK", 
+    "underlying": "spot", 
+    "strategy_type": "intraday",
+    "entry_time": "09:20", 
+    "last_entry_time": "23:59", 
+    "exit_time": "23:59", 
+    "square_off": "partial",
+    "overall_sl": 100, 
+    "overall_target": 200,                   
+    "trailing_for_strategy" : {"type": "lock_and_trail", "profit": 800, "lock_value": 500, "trail_level":  200, "trail_value": 100}, 
+    "implied_futures_expiry": "current",
+
+    "leg1" :{
+        "total_lots":3, 
+        "position": "sell" ,
+        "option_type": "CE", 
+        "expiry": "current",
+        "strike_selection_criteria": {"strike_selection": "strike", "value": "OTM3"}, 
+        "roll_strike":false,
+        "new_strike_selection_criteria":3,
+        "stop_loss":["points", 20], 
+        "trailing_sl":false, 
+        "no_of_reentry":2, 
+        "simple_momentum":false, 
+        "range_breakout":false
+    },
+
+    "leg2" :{
+        "total_lots":3, 
+        "position": "sell" ,
+        "option_type": "PE", 
+        "expiry": "current",
+        "strike_selection_criteria": {"strike_selection": "strike", "value": "OTM3"}, 
+        "roll_strike":false,
+        "new_strike_selection_criteria":3,
+        "stop_loss":["points", 20], 
+        "trailing_sl":false, 
+        "no_of_reentry":2, 
+        "simple_momentum":false, 
+        "range_breakout":false
+    }
+}

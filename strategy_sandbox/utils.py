@@ -1,10 +1,12 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import mysql.connector
 from mysql.connector import Error
 import pandas as pd
 from dateutil import parser
 import json
 import os
+
+environment = "dev"
 
 def get_atm(price, base):
     return  round(price / base) * base
@@ -26,12 +28,17 @@ class Logger:
     def __init__(self, filename):
         self.filename = filename
 
-    def log(self, message):
-        # print(message)
-        """Append a message with a timestamp to the log file."""
-        with open(self.filename, 'a') as file:
-            # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            file.write(f"{message}\n")
+    def log(self, message, current_data_time=""):
+        if environment.lower() == 'dev':
+            # print(message)
+            """Append a message with a timestamp to the log file."""
+            with open(self.filename, 'a') as file:
+                # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                if current_data_time == "": 
+                    file.write(f"{message}\n")
+                else:
+                    current_data_time = datetime.fromtimestamp(current_data_time) - timedelta(days= 1, hours=5, minutes=30)
+                    file.write(f"{current_data_time}: {message}\n")
 
 # def update_tradebook(data):
 #     try:
