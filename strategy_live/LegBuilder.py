@@ -55,6 +55,7 @@ class LegBuilder:
         self.max_loss = 0
         self.pnl = 0 
         self.sl_price = 0
+        self.appOrderID = None
         self.trade_data_event = asyncio.Event()
         self.market_data_event = asyncio.Event()
         self.realised_pnl = 0
@@ -82,6 +83,7 @@ class LegBuilder:
         # print(data)
         if not  data['OrderUniqueIdentifier'].endswith('sl'):
             self.trade_data_event.set()
+            print("trade data event set")
         
         # update_tradebook(data, self.sl_price)
         # print(self.market_data[-1:])
@@ -137,6 +139,7 @@ class LegBuilder:
                         order = self.xts.place_market_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
                                                             "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":0,
                                                                 "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
+                        self.appOrderID = order['AppOrderID']
                         self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, Re-entry, {self.position} order placed at {self.entry_price}')
                         order_placed=True
                         print('breaking out of while loop')
@@ -149,6 +152,7 @@ class LegBuilder:
                         order = self.xts.place_market_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
                                                             "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":0,
                                                                 "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
+                        self.appOrderID = order['AppOrderID']
                         self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, Re-entry, {self.position} order placed at {self.entry_price}')
                         order_placed=True
                         print('breaking out of while loop')
@@ -195,6 +199,7 @@ class LegBuilder:
                                               "limitPrice": trigger_price, 'stopPrice':self.sl_price, 'orderUniqueIdentifier': orderid})
             order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id, "orderSide": orderSide,
                                             "orderQuantity":traded_quantity, "limitPrice": trigger_price, 'stopPrice':self.sl_price, 'orderUniqueIdentifier': orderid})    
+            self.appOrderID = order['AppOrderID']
             self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, Re-entry SL {orderSide} order placed at {self.sl_price}')
             self.trade_data_event.clear()
     
@@ -541,9 +546,13 @@ class LegBuilder:
             print(trigger_price, self.entry_price, self.position)
             
             # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
-            order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position, "orderQuantity":int(self.total_lots * self.lot_size), "limitPrice": trigger_price, 'stopPrice':self.entry_price, 'orderUniqueIdentifier': self.leg_name})
+            order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id,
+                                               "orderSide": self.position,
+                                                 "orderQuantity":int(self.total_lots * self.lot_size),
+                                                   "limitPrice": trigger_price, 'stopPrice':self.entry_price,
+                                                     'orderUniqueIdentifier': self.leg_name})
             print(f"Order placed for {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}")
-            self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order placed for simple momentum {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}')
+            # self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order placed for simple momentum {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}')
             print(order)
         else:
             # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
@@ -558,6 +567,8 @@ class LegBuilder:
             order = self.xts.place_market_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
                                       "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":0,
                                         "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
+            self.appOrderID = order['AppOrderID']
+            
             self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol} market order placed')
         # self.pegasus.log(order)
         self.publisher.add_trade_subscriber(self)
@@ -570,8 +581,32 @@ class LegBuilder:
         # entry_price = self.market_data[-1:][0]['LastTradedPrice']
         print('leg place order invoked')
         print('waiting for the trade data to be set')
-        await self.trade_data_event.wait()
-        self.trade_data_event.clear()
+        try:
+            await asyncio.wait_for(self.trade_data_event.wait(), timeout=5)
+            self.trade_data_event.clear()
+        except asyncio.TimeoutError:
+           
+           print("modify order to market order logic here")
+           history_order = self.xts.order_history(self.appOrderID)
+           print(history_order)
+           if history_order['type']=='success':
+            modifiedProductType = history_order['result'][0]['ProductType']
+            modifiedOrderType = history_order['result'][0]['OrderType']
+            modifiedOrderQuantity = history_order['result'][0]['LeavesQuantity']
+            orderUniqueIdentifier = history_order['result'][0]['OrderUniqueIdentifier']   
+           modified_order = {
+
+                "appOrderID": self.appOrderID,
+                "modifiedProductType": modifiedProductType,
+                "modifiedOrderType": "MARKET",
+                "modifiedOrderQuantity": modifiedOrderQuantity,
+                "modifiedDisclosedQuantity": 0,
+                "modifiedLimitPrice": 0,
+                "modifiedStopPrice": 0,
+                "modifiedTimeInForce": "DAY",
+                "orderUniqueIdentifier": orderUniqueIdentifier
+            }
+           modified_order = self.xts.modify_order(modified_order)
         latest_trade = self.trade_data[-1:][0]
         # print(latest_trade)
         if latest_trade['OrderStatus']=='Filled':
