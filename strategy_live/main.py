@@ -74,7 +74,7 @@ async def run_strategy(xts, strategy_details):
         
     if underlying_ltp:
         print(f'{strategy.index} selected {strategy.underlying} and the last traded price is {underlying_ltp}')
-        base = 100 if strategy.index == 'NIFTY 50' else 50
+        base = strategy.base #100 if strategy.index == 'NIFTY 50' else 50
         underlying_atm = get_atm(underlying_ltp, base)
 
         leg1 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg1", strategy, publisher, 2, 'sell', 'CE', 'current',
