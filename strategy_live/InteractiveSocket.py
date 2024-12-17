@@ -26,7 +26,7 @@ class OrderSocket_io:
         self.stoploss_app_id =[]
         # self.publisher = publisher
         self.connection_url = f'{self.port}/?token={self.token}&userID={self.userID}&apiType=INTERACTIVE'
-
+        self.check_event = asyncio.Event()
     def connect(self, headers={}, transports='websocket', namespaces=None, socketio_path='/interactive/socket.io',
                 verify=False):
         threading.Thread(target=self.start_socket_connection).start()
@@ -86,6 +86,7 @@ class OrderSocket_io:
         # print("Order placed!" + data)
         data = json.loads(data)
         self.orders.append(data)
+        # print(data)
         if data['OrderStatus'].upper()=='OPEN':
              if data['AppOrderID'] in self.stoploss_app_id:
                   print(f"Modifying order because SL is getting skipped")

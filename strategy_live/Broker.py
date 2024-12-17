@@ -211,15 +211,17 @@ class XTS:
         headers = self.headers
         headers.update({'Authorization': self.interactive_token})
         try:
-            params["exchangeSegment"]="NSEFO"
-            params["productType"] ="NRML"
+            # params["exchangeSegment"]="NSEFO"
+            params["exchangeSegment"]="NSECM"
+            params["productType"] ="CNC"
             params["orderType"]="LIMIT"
             params["timeInForce"]="DAY"
             params["disclosedQuantity"]=0
-            params["orderUniqueIdentifier"]= f'{params["exchangeInstrumentID"]}'
+            params["orderUniqueIdentifier"]= f'{params["orderUniqueIdentifier"]}'
             payload = params
             response = requests.post(self.limit_order_url, json = payload,headers=headers)
-            return  response.json()
+            
+            return  response.json()['result']
         except Exception as e:
             print(e)
             return None
@@ -227,7 +229,8 @@ class XTS:
         headers = self.headers
         headers.update({'Authorization': self.interactive_token})
         try:
-            params["exchangeSegment"]="NSEFO"
+            # params["exchangeSegment"]="NSEFO"
+            params["exchangeSegment"]="NSECM"
             params["productType"] ="NRML"
             params["orderType"]="STOPLIMIT"
             params["timeInForce"]="DAY"
@@ -243,8 +246,9 @@ class XTS:
         headers = self.headers
         headers.update({'Authorization': self.interactive_token})
         try:
-            params["exchangeSegment"]="NSEFO"
-            params["productType"] ="NRML"
+            # params["exchangeSegment"]="NSEFO"
+            params["exchangeSegment"]="NSECM"
+            params["productType"] ="CNC"
             params["orderType"]="MARKET"
             params["timeInForce"]="DAY"
             params["disclosedQuantity"]=0
@@ -252,8 +256,9 @@ class XTS:
             params["limitPrice"] =0
             params["stopPrice"] = 0
             payload = params
+            print(payload)
             response = requests.post(self.limit_order_url, json = payload,headers=headers)
-            return  response.json()
+            return  response.json()['result']
         except Exception as e:
             print(e)
             return None
@@ -467,6 +472,17 @@ class XTS:
             response = requests.delete(url=self.limit_order_url, params = params, headers=headers)
             print(response.json())
             # return response.json()
+        except Exception as e:
+            print(e)
+            return e
+    def order_history(self, AppOrderID):
+        headers = self.headers
+        headers.update({'Authorization': self.interactive_token})
+        try:
+            params = {"appOrderID" : AppOrderID}
+            response = requests.get(url=self.limit_order_url, params = params, headers=headers)
+            print(response.json())
+            return response.json()
         except Exception as e:
             print(e)
             return e
