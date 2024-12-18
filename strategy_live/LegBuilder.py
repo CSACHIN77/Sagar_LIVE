@@ -541,6 +541,7 @@ class LegBuilder:
             print('order placed for range breakout')
             self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order placed for range breakout with entry price {limit_price}')
             print(order)
+            return
         elif self.simple_momentum:
             if self.simple_momentum['value_type'].lower()=='points':
                 sm_value = self.simple_momentum['value']
@@ -565,6 +566,7 @@ class LegBuilder:
                                                      'orderUniqueIdentifier': f"{self.leg_name}_sm"})
             print(f"Order placed for {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}")
             print(order)
+            return
         else:
             pass
             # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
