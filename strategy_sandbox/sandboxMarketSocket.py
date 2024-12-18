@@ -193,7 +193,7 @@ class MDSocket_io:
                         if self.counter ==1:
                             print(overallData)
                             self.counter +=1
-                        self.current_data_time = overallData
+                        #self.current_data_time = overallData
                         self.current_data_time = overallData['LastUpdateTime']
                 
                 time.sleep(0.001)  # Small delay to prevent CPU overuse
