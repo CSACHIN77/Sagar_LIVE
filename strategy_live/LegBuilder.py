@@ -66,6 +66,12 @@ class LegBuilder:
         self.df = self.strategy.df        
         # print(self.freeze_quantity)
         self.base = self.strategy.base #100 if self.strategy.index == 'NIFTY BANK' else 50
+
+    def execute_limit_order(self, order_param):
+        print(f"calling execute order with parameters {order_param}")
+        order = self.xts.place_limit_order(order_param)
+        self.appOrderID = order['AppOrderID']
+
     def update_price(self, price):
         self.current_price = price
 
@@ -81,7 +87,15 @@ class LegBuilder:
             dt = datetime.strptime(data['ExchangeTransactTimeAPI'], '%Y-%m-%d %H:%M:%S')
             data['ExchangeTransactTimeAPI'] = dt.strftime('%Y-%m-%d %H:%M:%S')
         # print(data)
-        if not  data['OrderUniqueIdentifier'].endswith('sl'):
+        if data['OrderUniqueIdentifier'].endswith(('sm', 'rb')):
+            try:
+                self.trade_data_event.set()
+                self.leg_place_order()
+
+            except:
+                pass
+
+        elif not  data['OrderUniqueIdentifier'].endswith('sl'):
             self.trade_data_event.set()
             print("trade data event set")
         
@@ -523,8 +537,7 @@ class LegBuilder:
             print(trigger_price, self.entry_price, self.position)
             print(f"Range for {self.range_breakout['timeframe'] is  min(historical_data['low']) and  max(historical_data['high']) }")
             print(f"User selected {self.range_breakout['side']} option, and entry price is {self.entry_price}")
-            # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
-            order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position, "orderQuantity":int(self.total_lots * self.lot_size), "limitPrice": trigger_price, 'stopPrice':self.entry_price, 'orderUniqueIdentifier': 'rb'})
+            order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position, "orderQuantity":int(self.total_lots * self.lot_size), "limitPrice": trigger_price, 'stopPrice':self.entry_price, 'orderUniqueIdentifier': f"{self.leg_name}_rb"})
             print('order placed for range breakout')
             self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order placed for range breakout with entry price {limit_price}')
             print(order)
@@ -545,16 +558,15 @@ class LegBuilder:
                 trigger_price = float(self.entry_price - self.trigger_tolerance)
             print(trigger_price, self.entry_price, self.position)
             
-            # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
             order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id,
                                                "orderSide": self.position,
                                                  "orderQuantity":int(self.total_lots * self.lot_size),
                                                    "limitPrice": trigger_price, 'stopPrice':self.entry_price,
-                                                     'orderUniqueIdentifier': self.leg_name})
+                                                     'orderUniqueIdentifier': f"{self.leg_name}_sm"})
             print(f"Order placed for {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}")
-            # self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order placed for simple momentum {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}')
             print(order)
         else:
+            pass
             # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
             # if (int(self.lot_size) *self.total_lots) > self.freeze_quantity:
             #     valid_quantity_list = slice_orders(int(self.lot_size) *self.total_lots, self.freeze_quantity)
@@ -563,14 +575,13 @@ class LegBuilder:
             #                           "orderQuantity":quantity,"limitPrice":0,
             #                             "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
                     
-
-            order = self.xts.place_market_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
+        order_param = {"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
                                       "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":0,
-                                        "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
-            self.appOrderID = order['AppOrderID']
+                                        "stopPrice": 1, "orderUniqueIdentifier": self.leg_name}
+        self.execute_limit_order(order_param)
+
             
-            self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol} market order placed')
-        # self.pegasus.log(order)
+        self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol} market order placed')
         self.publisher.add_trade_subscriber(self)
         self.publisher.add_subscriber(self, [self.instrument_id])
 
@@ -578,7 +589,6 @@ class LegBuilder:
         pass
     
     async def leg_place_order(self):        
-        # entry_price = self.market_data[-1:][0]['LastTradedPrice']
         print('leg place order invoked')
         print('waiting for the trade data to be set')
         try:
@@ -608,7 +618,6 @@ class LegBuilder:
             }
            modified_order = self.xts.modify_order(modified_order)
         latest_trade = self.trade_data[-1:][0]
-        # print(latest_trade)
         if latest_trade['OrderStatus']=='Filled':
             self.trade_entry_price = float(latest_trade['OrderAverageTradedPrice'])
             trade_side = latest_trade['OrderSide']
@@ -616,9 +625,6 @@ class LegBuilder:
             entry_timestmap = latest_trade['ExchangeTransactTime']
             entry_slippage = self.trade_entry_price - self.entry_price
             trade = {'symbol': self.instrument_id, 'entry_price': self.entry_price, 'trade_price': self.trade_entry_price,  'trade' : trade_side, 'quantity' : traded_quantity, 'timestamp': entry_timestmap, 'entry_slippage': round((self.entry_price - self.trade_entry_price), 2)}
-            # print(f'instrument traded at avg price of {self.trade_entry_price}, side {trade_side},\n with quantity {traded_quantity} and executed at  {entry_timestmap} and slippage is {entry_slippage}')
-            # print(trade)
-            # print(f'entry_price before placing order is {self.entry_price}')
             self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order filled {self.entry_price}')
             
         # print(f'placing SL order now for {self.leg_name} SL points {self.stop_loss}')

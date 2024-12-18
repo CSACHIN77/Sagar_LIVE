@@ -46,9 +46,12 @@ interactive_el.on('order', interactive_soc.on_order)
 xts.get_master({'exchangeSegmentList': ['NSEFO']})
 
 async def process_leg(leg):
+    print("processing legs")
     leg.get_expiry_df()
+    print(f" simple momentum for {leg.leg_name} is {leg.simple_momentum}")
     leg.selection_criteria()
-    await leg.leg_place_order()
+    if leg.simple_momentum == False or leg.range_breakout == False:
+        await leg.leg_place_order()
     await leg.calculate_mtm()
   
 async def run_strategy(xts, strategy_details):
