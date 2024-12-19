@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime
 from Strategy import Strategy
-from LegBuilder import LegBuilder
+from Leg.LegBuilder import LegBuilder
 from MarketSocket import MDSocket_io
 from InteractiveSocket import OrderSocket_io
 from datetime import datetime
