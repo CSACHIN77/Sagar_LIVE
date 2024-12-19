@@ -2,7 +2,7 @@ from utils import filter_dataframe
 import re
 import json
 import pandas as pd
-from utils import get_atm
+from utils import get_atm, apply_strike_selection_criteria, apply_closest_premium_selection_criteria,apply_straddle_width_selection_criteria
 import time
 from io import StringIO
 from datetime import datetime, timedelta
@@ -317,181 +317,31 @@ class LegBuilder:
         expiry_df = self.opt_df[(self.opt_df['expiry']== expiry_day) & (self.opt_df['option_type']==self.option_type)] #& (self.option_type['strike']==self.strike)]
         return expiry_df
     
+    
+
+    
     def selection_criteria(self):
         """
             Apply selection criteria based on user-defined parameters to determine the option to be traded.
         """
         choice = self.strike_selection_criteria['strike_selection']
         choice_value = self.strike_selection_criteria['value']
-        print(f'leg opted for {choice} and select strike is {choice_value}')
-        if  choice == 'strike':
-            if choice_value=='ATM':
-                
-                self.option_symbol = self.expiry_df[(self.expiry_df['strike'].astype(int)== self.strike)]
-                self.instrument_id = int(self.option_symbol['instrument_token'].values[0])
-                print(self.option_symbol)
-                self.lot_size = int(self.option_symbol['lot_size'].values[0])
-            elif choice_value.startswith('ITM'):
-                itm_depth = re.findall(r'\d+', choice_value)
-                if itm_depth:
-                    if self.option_type == 3:
-                        self.strike = self.strike - 100*int(itm_depth[0])
-                        self.option_symbol = self.expiry_df[(self.expiry_df['strike'].astype(int)== self.strike)]
-                        print(self.option_symbol)
-                        self.instrument_id = int(self.option_symbol['instrument_token'].values[0])
-                        self.lot_size = int(self.option_symbol['lot_size'].values[0])
-                    else:
-                        self.strike = self.strike + 100*int(itm_depth[0])
-                        self.option_symbol = self.expiry_df[(self.expiry_df['strike'].astype(int)== self.strike)]
-                        self.instrument_id = int(self.option_symbol['instrument_token'].values[0])
-                        print(self.option_symbol)
-                        self.lot_size = int(self.option_symbol['lot_size'].values[0])
-            elif choice_value.startswith('OTM'):
-                itm_depth = re.findall(r'\d+', choice_value)
-                if itm_depth:
-                    if self.option_type == 3:
-                        self.strike = self.strike + 100*int(itm_depth[0])
-                        self.option_symbol = self.expiry_df[(self.expiry_df['strike'].astype(int)== self.strike)]
-                        print(self.option_symbol)
-                        self.instrument_id = int(self.option_symbol['instrument_token'].values[0])
-                        self.lot_size = int(self.option_symbol['lot_size'].values[0])
-                        
-                    else:
-                        self.strike = self.strike - 100*int(itm_depth[0])
-                        self.option_symbol = self.expiry_df[(self.expiry_df['strike'].astype(int)== self.strike)]
-                        self.instrument_id = int(self.option_symbol['instrument_token'].values[0])
-                        print(self.option_symbol)
-                        self.lot_size = int(self.option_symbol['lot_size'].values[0])
+        print(f"choice is {choice} and choice_value is {choice_value}")
+    
+        if  choice.lower() == 'strike':
+            self.option_symbol, self.lot_size, self.instrument_id = apply_strike_selection_criteria(choice_value, self.strike, self.expiry_df, self.option_type, self.base)
         elif choice.lower() =='closest_premium':
-            premium = choice_value
-            premium_instruments = []
-            exid_list = list(self.expiry_df['instrument_token'])
-            ltp_list = []
-            chunks = [exid_list[i:i+50] for i in range(0, len(exid_list), 50)]
-            exchange_instrument_ids = []
-            last_traded_prices = []
-            option_types =[]
-            for chunk in chunks:
-                premium_instruments_chunk = []
-                for exid in chunk:
-                    premium_instruments_chunk.append({'exchangeSegment': 2, 'exchangeInstrumentID': exid})
-                
-                response = self.xts.get_quotes(premium_instruments_chunk)
-                ltp_data = response['result']['listQuotes']
-                for item in ltp_data:
-                    item_dict = eval(item)
-                    exchange_instrument_ids.append(item_dict['ExchangeInstrumentID']) 
-                    last_traded_prices.append(item_dict['LastTradedPrice'])
-
-            df = pd.DataFrame({
-                'exchangeInstrumentID': exchange_instrument_ids,
-                'LastTradedPrice': last_traded_prices,
-            })
-            df['PriceDifference'] = abs(df['LastTradedPrice'] - choice_value)
-            option_data_sorted = df.sort_values(by='PriceDifference')
-            nearest_option = option_data_sorted.iloc[0]
-            nearest_premium= nearest_option.LastTradedPrice
-            self.instrument_id = int(nearest_option.exchangeInstrumentID)
-            nearest_option_name = self.expiry_df[self.expiry_df['instrument_token']== self.instrument_id]
-            self.lot_size = nearest_option_name.iloc[0].lot_size
-            print(f"{nearest_option_name.iloc[0].tradingsymbol} has premium of {nearest_premium}")
+            self.option_symbol, self.lot_size, self.instrument_id, nearest_premium = apply_closest_premium_selection_criteria(self.xts, choice_value, self.expiry_df)
 
         elif choice.lower() in ['straddle_width', 'atm_pct', 'atm_straddle_premium']:
-            straddle_df = self.combined_expiry_df[self.combined_expiry_df['strike'].astype(int)==int(self.strike)]
-            options_list = []
-            instrument_tokens = list(straddle_df['instrument_token'])
-            for instrument_token in instrument_tokens:
-                options_list.append({'exchangeSegment':2, 'exchangeInstrumentID': instrument_token})
-            results = self.xts.get_quotes(options_list)
-            if results['type']=='success':
-                ltp_data = results['result']['listQuotes']
-            combined_premium = 0
-            for ltp_item in ltp_data:
-                ltp_value = json.loads(ltp_item)
-                ltp = ltp_value['LastTradedPrice']
-                combined_premium  = combined_premium + ltp
-            
-            print(f'combined premium is {combined_premium}') 
-            if choice.lower() == 'atm_straddle_premium':
-                combined_premium = round(((combined_premium*choice_value)/100), 2)
-                print(f'atm_straddle_premium has {combined_premium} value ')
-                premium = combined_premium
-                premium_instruments = []
-                exid_list = list(self.expiry_df['instrument_token'])
-                ltp_list = []
-                chunks = [exid_list[i:i+50] for i in range(0, len(exid_list), 50)]
-                exchange_instrument_ids = []
-                last_traded_prices = []
-                option_types =[]
-                for chunk in chunks:
-                    premium_instruments_chunk = []
-                    for exid in chunk:
-                        premium_instruments_chunk.append({'exchangeSegment': 2, 'exchangeInstrumentID': exid})
-                    
-                    response = self.xts.get_quotes(premium_instruments_chunk)
-                    ltp_data = response['result']['listQuotes']
-                    for item in ltp_data:
-                        item_dict = eval(item)
-                        exchange_instrument_ids.append(item_dict['ExchangeInstrumentID']) 
-                        last_traded_prices.append(item_dict['LastTradedPrice'])
-
-                df = pd.DataFrame({
-                    'exchangeInstrumentID': exchange_instrument_ids,
-                    'LastTradedPrice': last_traded_prices,
-                })
-                df['PriceDifference'] = abs(df['LastTradedPrice'] - premium)
-                option_data_sorted = df.sort_values(by='PriceDifference')
-                nearest_option = option_data_sorted.iloc[0]
-                nearest_premium= nearest_option.LastTradedPrice
-                self.instrument_id = int(nearest_option.exchangeInstrumentID)
-                nearest_option_name = self.expiry_df[self.expiry_df['instrument_token']== self.instrument_id]
-                self.lot_size = nearest_option_name.iloc[0].lot_size
-                print(f"{nearest_option_name.iloc[0].tradingsymbol} has premium of {nearest_premium}")
-            
-
-            elif choice.lower() == 'atm_pct':
-                if choice_value['atm_strike']== '+':
-                    atm_points = choice_value['input']*self.strike
-                    self.strike = get_atm(self.strike+atm_points, self.base)
-                elif choice_value['atm_strike']== '-':
-                    atm_points = choice_value['input']*self.strike
-                    self.strike = get_atm(self.strike-atm_points, self.base)
-                selected_option = self.expiry_df[self.expiry_df['strike'].astype(int) == self.strike].iloc[0]
-                self.instrument_id = int(selected_option.instrument_token)
-                self.lot_size = selected_option.lot_size
-                print(selected_option.tradingsymbol)
-
-                # combined_premium = round((choice_value* combined_premium)/100)
-                
-            elif choice_value['atm_strike'] == '+':
-                selected_strike = self.strike + combined_premium*choice_value['input']
-                print(self.strike)
-                selected_strike = get_atm(selected_strike, self.base)
-                print(f'selected strike is {selected_strike}')
-                self.strike = selected_strike
-                selected_option = self.expiry_df[self.expiry_df['strike'].astype(int) == self.strike].iloc[0]
-                self.instrument_id = int(selected_option.instrument_token)
-                self.lot_size = selected_option.lot_size
-                print(selected_option.tradingsymbol)
-
-            elif choice_value['atm_strike'] == '-':
-                selected_strike = self.strike - combined_premium*choice_value['input']
-                print(self.strike)
-                selected_strike = get_atm(selected_strike, self.base)
-                print(f'selected strike is {selected_strike}')
-                self.strike = selected_strike
-                selected_option = self.expiry_df[self.expiry_df['strike'].astype(int) == self.strike].iloc[0]
-                self.instrument_id = int(selected_option.instrument_token)
-                self.lot_size = selected_option.lot_size
-                print(selected_option.tradingsymbol)
+            self.option_symbol, self.lot_size, self.instrument_id = apply_straddle_width_selection_criteria(self.xts, choice, choice_value, self.combined_expiry_df, self.strike, self.expiry_df, self.base)
 
         self.xts.subscribe_symbols([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}])
         response = self.xts.get_quotes([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}])
         ltp_data = response['result']['listQuotes']
         ltp = json.loads(ltp_data[0])['LastTradedPrice']
         self.entry_price = float(ltp)
-        # print(f'entry_price before placing order is {self.entry_price}')
-
+ 
         self.instrument = self.expiry_df[self.expiry_df['instrument_token']== self.instrument_id].iloc[0]
         self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, entry_price before placing order is {self.entry_price}')
        
