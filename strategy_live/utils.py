@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import mysql.connector
 from mysql.connector import Error
 import pandas as pd
@@ -6,6 +6,7 @@ from dateutil import parser
 import json
 import os
 import re
+import time
 
 environment = "dev"
 
@@ -558,3 +559,81 @@ def slice_orders(total_quantity, freeze_quantity):
     if total_quantity > 0:
         order_quantities.append(total_quantity)
     return order_quantities
+
+
+def breakout_momentum_selection_criteria(xts, strategy, range_breakout, simple_momentum, instrument_id, ):
+        if range_breakout:
+            timeframe = range_breakout['timeframe']
+            start_time = strategy.entry_time
+            end_time = start_time + timedelta(minutes=timeframe)
+            start_time = start_time.strftime('%b %d %Y %H%M%S')
+            end_time = end_time.strftime('%b %d %Y %H%M%S')
+            # trade_side = range_breakout['']
+            params = {
+                "exchangeSegment": 2,
+                "exchangeInstrumentID": instrument_id,
+                "startTime": start_time,
+                "endTime": end_time,
+                "compressionValue": 60
+            }
+            print(params)
+            print(f'sleeping for {timeframe} minutes')
+            time.sleep(timeframe*60)
+            data= self.xts.get_historical_data(params)['result']['dataReponse']
+            data = data.replace(',', '\n')
+            historical_data = pd.read_csv(StringIO(data), sep = '|', usecols=range(7), header = None, low_memory=False)
+            new_columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume', 'oi']
+            historical_data.columns = new_columns
+            # historical_data['instrument_token'] = exchange_instrument_id
+            # historical_data['tradingsymbol'] = tradingsymbol
+            historical_data['timestamp'] = pd.to_datetime(historical_data['timestamp'], unit='s')
+            print(historical_data)
+            print(f"highest high is {max(historical_data['high'])}, and low is {min(historical_data['low'])}")
+            if self.range_breakout['side'].lower()=='high':
+                self.entry_price = max(historical_data['high'])
+                print(f'high of range is {self.entry_price}')
+            elif self.range_breakout['side'].lower()=='low':
+                self.entry_price = min(historical_data['low'])
+                print('low of range is {self.entry_price}')
+            if self.position.lower() == 'buy':
+                limit_price = int(self.entry_price)
+                trigger_price = int(self.entry_price + self.trigger_tolerance)
+            elif self.position.lower() == 'sell':
+                limit_price = float(self.entry_price)
+                trigger_price = float(self.entry_price - self.trigger_tolerance)
+            print(trigger_price, self.entry_price, self.position)
+            print(f"Range for {self.range_breakout['timeframe'] is  min(historical_data['low']) and  max(historical_data['high']) }")
+            print(f"User selected {self.range_breakout['side']} option, and entry price is {self.entry_price}")
+            order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position, "orderQuantity":int(self.total_lots * self.lot_size), "limitPrice": trigger_price, 'stopPrice':self.entry_price, 'orderUniqueIdentifier': f"{self.leg_name}_rb"})
+            print('order placed for range breakout')
+            self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order placed for range breakout with entry price {limit_price}')
+            print(order)
+            return
+        elif self.simple_momentum:
+            if self.simple_momentum['value_type'].lower()=='points':
+                sm_value = self.simple_momentum['value']
+            elif self.simple_momentum['value_type'].lower()=='percentage':
+                sm_value = round((self.entry_price*self.simple_momentum['value'])/100, 2)
+            if self.simple_momentum['direction'].lower() =='increment':
+                self.entry_price = self.entry_price + sm_value
+            elif self.simple_momentum['direction'].lower() =='decay':
+                self.entry_price = self.entry_price - sm_value
+            if self.position.lower() == 'buy':
+                limit_price = int(self.entry_price)
+                trigger_price = int(self.entry_price + self.trigger_tolerance)
+            elif self.position.lower() == 'sell':
+                limit_price = float(self.entry_price)
+                trigger_price = float(self.entry_price - self.trigger_tolerance)
+            print(trigger_price, self.entry_price, self.position)
+            
+            order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id,
+                                               "orderSide": self.position,
+                                                 "orderQuantity":int(self.total_lots * self.lot_size),
+                                                   "limitPrice": trigger_price, 'stopPrice':self.entry_price,
+                                                     'orderUniqueIdentifier': f"{self.leg_name}_sm"})
+            print(f"Order placed for {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}")
+            print(order)
+            return
+        else:
+            pass
+           
