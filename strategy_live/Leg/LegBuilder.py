@@ -334,7 +334,7 @@ class LegBuilder:
             straddle_width = get_straddle_premium(xts = self.xts, combined_expiry_df=self.combined_expiry_df, strike=self.strike)
             selected_strike = straddle_width_strike_selection(self.xts, straddle_width, choice, choice_value, self.combined_expiry_df, self.strike, self.expiry_df, self.base)
         
-        symbol_info = filter_symbol_df(expiry_df=self.expiry_df, key="strike", strike=selected_strike)  
+        symbol_info = filter_symbol_df(expiry_df=self.expiry_df, key="strike", val=selected_strike)  
 
         tradingsymbol = symbol_info["tradingsymbol"]
         lot_size = symbol_info["lot_size"]
@@ -349,7 +349,7 @@ class LegBuilder:
             start_time = self.strategy.entry_time
             range_high, range_low = get_range_breakout_value(self.xts, timeframe, start_time)
 
-            limit_price, trigger_price = get_range_breakout_order_price(self.range_breakout['side'], self.position, range_high, range_low)
+            self.entry_price, limit_price, trigger_price = get_range_breakout_order_price(self.range_breakout['side'], self.position, range_high, range_low)
             print(trigger_price, self.entry_price, self.position)
             #print(f"Range for {self.range_breakout['timeframe'] is  min(historical_data['low']) and  max(historical_data['high']) }")
             print(f"User selected {self.range_breakout['side']} option, and entry price is {self.entry_price}")
@@ -359,7 +359,7 @@ class LegBuilder:
             print(order)
             return
         elif self.simple_momentum:
-            limit_price, trigger_price, sm_value = get_momentum_order_price( self.simple_momentum['value_type'], self.simple_momentum['value'], 
+            self.entry_price, limit_price, trigger_price, sm_value = get_momentum_order_price( self.simple_momentum['value_type'], self.simple_momentum['value'], 
                                      self.simple_momentum['direction'], self.position, self.trigger_tolerance)
             print(trigger_price, self.entry_price, self.position)
             

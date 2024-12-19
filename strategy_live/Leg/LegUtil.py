@@ -34,14 +34,15 @@ def get_strike(choice_value, strike, option_type, base):
         raise ValueError(f"Invalid choice_value: {choice_value}. Must be 'ATM', 'ITM', or 'OTM'.")
 
 
-
 def filter_symbol_df(expiry_df, key, val):
     option_symbol = expiry_df[(expiry_df[key].astype(int) == val)]
-
-    tradingsymbol = option_symbol['tradingsymbol'].values[0]
-    instrument_id = int(option_symbol['instrument_token'].values[0])
-    lot_size = int(option_symbol['lot_size'].values[0])
-    return {"symbol": tradingsymbol, "instrument_id": instrument_id, "lot_size": lot_size}
+    if len(option_symbol) > 0:
+        tradingsymbol = option_symbol['tradingsymbol'].values[0]
+        instrument_id = int(option_symbol['instrument_token'].values[0])
+        lot_size = int(option_symbol['lot_size'].values[0])
+        return {"symbol": tradingsymbol, "instrument_id": instrument_id, "lot_size": lot_size}
+    print("Seleted strike not found in the expiry_df")
+    return None
 
 
 def get_straddle_premium(xts, combined_expiry_df, strike):
@@ -194,7 +195,7 @@ def get_range_breakout_order_price(breakout_side, position, range_high, range_lo
         trigger_price = float(entry_price - trigger_tolerance)
         print(trigger_price, entry_price, position)
     
-    return limit_price, trigger_price
+    return entry_price, limit_price, trigger_price
 
 def get_momentum_order_price(value_type, value, direction, position, trigger_tolerance):
     if value_type.lower()=='points':
@@ -213,4 +214,4 @@ def get_momentum_order_price(value_type, value, direction, position, trigger_tol
     elif position.lower() == 'sell':
         limit_price = float(entry_price)
         trigger_price = float(entry_price - trigger_tolerance)
-    return limit_price, trigger_price, sm_value
+    return entry_price, limit_price, trigger_price, sm_value
