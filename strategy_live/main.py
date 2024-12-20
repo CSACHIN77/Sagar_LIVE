@@ -3,12 +3,11 @@ from datetime import datetime
 from Strategy import Strategy
 from LegBuilder import LegBuilder
 from MarketSocket import MDSocket_io
-from InteractiveSocket import OrderSocket_io
 from datetime import datetime
 from Broker import XTS
 import os
 import sys
-from utils import get_atm, create_tradebook_table, broker_login
+from utils import get_atm, create_tradebook_table, broker_login, initialize_sockets
 from Publisher import Publisher
 import time
 publisher = Publisher()
@@ -28,21 +27,7 @@ environment = "dev"
 creds = fetch_parameter(environment, "live_creds")
 market_token, interactive_token, userid = broker_login(xts, creds)
 xts.market_token, xts.interactive_token, xts.userid  = market_token, interactive_token, userid
-# xts.update_master_db()
-soc = MDSocket_io(token = market_token, port=port, userID=userid,publisher=publisher) #initialize 
-interactive_soc = OrderSocket_io(interactive_token, userid, port, publisher)
-# soc.on_connect = on_connect
-el = soc.get_emitter()
-el.on('connect', soc.on_connect)
-el.on('1512-json-full', soc.on_message1512_json_full)
-soc.connect()
-
-interactive_soc.connect()
-# interactive_soc.on_trade = on_trade
-interactive_el = interactive_soc.get_emitter()
-interactive_el.on('trade', interactive_soc.on_trade)
-interactive_el.on('order', interactive_soc.on_order)
-
+interactive_soc, soc = initialize_sockets(market_token, interactive_token, port, userid, publisher)
 xts.get_master({'exchangeSegmentList': ['NSEFO']})
 
 async def process_leg(leg):
@@ -80,7 +65,7 @@ async def run_strategy(xts, strategy_details):
         underlying_atm = get_atm(underlying_ltp, base)
 
         leg1 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg1", strategy, publisher, 2, 'sell', 'CE', 'current',
-                        {'strike_selection': 'closest_premium', 'value': 200}, underlying_atm, roll_strike=False,
+                        {'strike_selection': 'strike', 'value': 'ITM3'}, underlying_atm, roll_strike=False,
                         new_strike_selection_criteria=3, stop_loss=['points', 15], trailing_sl={"priceMove": 20, "sl_adjustment": 4}, no_of_reentry=2, 
                         simple_momentum=False, range_breakout=False)
         leg2 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg2", strategy, publisher, 2, 'sell', 'PE', 'current',
@@ -121,17 +106,10 @@ async def main():
         'trailing_for_strategy': {"type": "lock_and_trail", "profit": 2000, "lock_value": 1300, "trail_level":  200, "trail_value": 100}, 
         'implied_futures_expiry': 'current'
     }
-    # strategy_details_2 = {
-    #     'name': 'strategy2', 'index': 'NIFTY 50', 'underlying': 'spot', 'strategy_type': 'intraday',
-    #     'entry_time': "13:48", 'last_entry_time': "14:15", 'exit_time': "14:20", 'square_off': "full",
-    #     'overall_sl': 4000, 'overall_target': 4000, 
-    #     'trailing_for_strategy': {"type": "lock_and_trail", "profit": 2400, "lock_value": 1700, "trail_level":400, "trail_value": 100},
-    #     'implied_futures_expiry': 'current'
-    # }
+    
     
     await asyncio.gather(
         run_strategy(xts, strategy_details_1),
-        # run_strategy(xts, strategy_details_2)
     )
 
 asyncio.run(main())
