@@ -49,12 +49,27 @@ def apply_strike_selection_criteria(choice_value, strike, expiry_df, option_type
     else:
         raise ValueError(f"Invalid choice_value: {choice_value}. Must be 'ATM', 'ITM', or 'OTM'.")
     option_symbol_df = expiry_df[(expiry_df['strike'].astype(int) == strike)]
+    instrument_id, lot_size, option_symbol = get_option_details(option_symbol_df)
+    return option_symbol, lot_size, instrument_id
+
+def get_option_details(option_symbol_df):
+    """
+    Extracts and returns the instrument ID, lot size, and trading symbol from the given DataFrame.
+
+    Parameters:
+    option_symbol_df (DataFrame): DataFrame containing option symbol details, including 
+                                  'instrument_token', 'lot_size', and 'tradingsymbol'.
+
+    Returns:
+    tuple: A tuple containing:
+        - instrument_id (int): The instrument token as an integer.
+        - lot_size (int): The lot size as an integer.
+        - option_symbol (str): The trading symbol as a string.
+    """
     instrument_id = int(option_symbol_df['instrument_token'].values[0])
     lot_size = int(option_symbol_df['lot_size'].values[0])
     option_symbol = option_symbol_df['tradingsymbol'].iloc[0]
-
-    return option_symbol, lot_size, instrument_id
-
+    return instrument_id, lot_size, option_symbol
 
 def apply_straddle_width_selection_criteria(xts, choice, choice_value, combined_expiry_df, strike, expiry_df, base=100):
     """
@@ -202,16 +217,20 @@ def assign_strategy_variables(strategy):
 
 
 def get_expiry_df(df, index, expiry, option_type):
-        
-        opt_df, monthly_expiry_list = filter_dataframe(df, [index])
-        expiry_list = list(set(opt_df['expiry']))
-        expiry_list.sort()
-        if (expiry == 2) & (expiry_list[0]== monthly_expiry_list[0]):
-            expiry_day = monthly_expiry_list[1]
-        elif((expiry == 2)):
-            expiry_day = monthly_expiry_list[0]
-        else:
-            expiry_day = expiry_list[expiry]
-        combined_expiry_df = opt_df[(opt_df['expiry']== expiry_day)]
-        expiry_df = opt_df[(opt_df['expiry']== expiry_day) & (opt_df['option_type']==option_type)] 
-        return expiry_df, combined_expiry_df
+    """
+    Filters the options data based on the given index, expiry type, and option type.
+    Returns two DataFrames:
+    1. `expiry_df`: Options data for the specified expiry day and option type.
+    2. `combined_expiry_df`: All options data for the specified expiry day, irrespective of option type.
+    """
+    opt_df, monthly_expiry_list = filter_dataframe(df, [index])
+    expiry_list = sorted(set(opt_df['expiry']))
+    if expiry == 2 and expiry_list[0] == monthly_expiry_list[0]:
+        expiry_day = monthly_expiry_list[1]
+    elif expiry == 2:
+        expiry_day = monthly_expiry_list[0]
+    else:
+        expiry_day = expiry_list[expiry]
+    combined_expiry_df = opt_df[opt_df['expiry'] == expiry_day]
+    expiry_df = combined_expiry_df[combined_expiry_df['option_type'] == option_type]
+    return expiry_df, combined_expiry_df
