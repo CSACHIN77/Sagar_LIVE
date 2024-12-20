@@ -3,9 +3,12 @@ import pandas as pd
 from dateutil import parser
 import re
 import json
-from utils import get_atm
 import time
 from io import StringIO
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils import get_atm
 
 environment = "dev"
 
@@ -30,9 +33,10 @@ def get_strike(choice_value, strike, option_type, base):
                 strike = strike + base * int(itm_depth[0])
             else:
                 strike = strike - base * int(itm_depth[0])
-    else:
+    
+    else: 
         raise ValueError(f"Invalid choice_value: {choice_value}. Must be 'ATM', 'ITM', or 'OTM'.")
-
+    return strike
 
 def filter_symbol_df(expiry_df, key, val):
     option_symbol = expiry_df[(expiry_df[key].astype(int) == val)]
