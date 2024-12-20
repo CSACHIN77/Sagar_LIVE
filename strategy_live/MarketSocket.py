@@ -2,9 +2,7 @@ import threading
 import socketio
 import json
 from datetime import datetime
-from utils import Logger
 import time
-logger = Logger('socket_log.txt')
 class MDSocket_io:
     def __init__(self, token, userID, port, publisher, reconnection=True, reconnection_attempts=0, reconnection_delay=1,
                  reconnection_delay_max=50000, randomization_factor=0.5, logger=False, binary=False, json=None,
@@ -62,8 +60,9 @@ class MDSocket_io:
         self.sid.on('disconnect', self.on_disconnect)
         self.sid.on('error', self.on_error)
     def on_connect(self):
+        pass
         # print('Market Data Socket connected successfully!')
-        logger.log(f'socket reconnected @ {datetime.now()}')
+        # logger.log(f'socket reconnected @ {datetime.now()}')
     def on_message1501_json_full(self, data):
         print('I received a 1501 Level1, Touchline message!', data)
 
@@ -74,8 +73,8 @@ class MDSocket_io:
         # print(f'sent data to publisher @ {datetime.now()}')
         
     def on_disconnect(self):
+        pass
         # print('Market Data Socket disconnected!')
-        logger.log(f'socket disconnected @ {datetime.now()}')
     def on_error(self, data):
         print('Market Data Error:', data)
 

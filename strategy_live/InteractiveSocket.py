@@ -4,7 +4,7 @@ import json
 import pandas as pd
 import asyncio
 import time
-from utils import Logger, update_tradebook
+# from utils import Logger, update_tradebook
 class OrderSocket_io:
     def __init__(self, token, userID, port, publisher, reconnection=True, reconnection_attempts=0, reconnection_delay=1,
                  reconnection_delay_max=50000, randomization_factor=0.5, logger=False, binary=False, json=None,
@@ -22,7 +22,7 @@ class OrderSocket_io:
         self.port = port
         self.userID = userID
         self.token = token
-        self.logger = Logger('orders.txt')
+        # self.logger = Logger('orders.txt')
         self.stoploss_app_id =[]
         # self.publisher = publisher
         self.connection_url = f'{self.port}/?token={self.token}&userID={self.userID}&apiType=INTERACTIVE'
@@ -91,7 +91,7 @@ class OrderSocket_io:
              if data['AppOrderID'] in self.stoploss_app_id:
                   print(f"Modifying order because SL is getting skipped")
         if data['OrderStatus'].upper() == 'NEW':
-            self.logger.log(data)
+            # self.logger.log(data)
             if data['OrderType'].upper() =='STOPLIMIT':
                 print('adding app order id of trigger stoploss orders')
                 self.stoploss_app_id.append(data['AppOrderID'])
@@ -105,7 +105,7 @@ class OrderSocket_io:
 
     def on_trade(self, data):
         data= json.loads(data)
-        self.logger.log(data)
+        # self.logger.log(data)
         print('interactive on_trade method being called')
         # if data['OrderUniqueIdentifier'] == 'leg1':
         #     print(data)
