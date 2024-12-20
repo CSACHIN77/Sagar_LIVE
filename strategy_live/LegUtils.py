@@ -29,9 +29,7 @@ def apply_strike_selection_criteria(choice_value, strike, expiry_df, option_type
     """
     choice_value = choice_value.upper()
     if choice_value == 'ATM':
-        option_symbol = expiry_df[(expiry_df['strike'].astype(int) == strike)]
-        instrument_id = int(option_symbol['instrument_token'].values[0])
-        lot_size = int(option_symbol['lot_size'].values[0])
+        pass
     elif choice_value.startswith('ITM'):
         itm_depth = re.findall(r'\d+', choice_value)
         if itm_depth:
@@ -39,9 +37,7 @@ def apply_strike_selection_criteria(choice_value, strike, expiry_df, option_type
                 strike = strike - base * int(itm_depth[0])
             else:
                 strike = strike + base * int(itm_depth[0])
-            option_symbol = expiry_df[(expiry_df['strike'].astype(int) == strike)]
-            instrument_id = int(option_symbol['instrument_token'].values[0])
-            lot_size = int(option_symbol['lot_size'].values[0])
+            
     elif choice_value.startswith('OTM'):
         itm_depth = re.findall(r'\d+', choice_value)
         if itm_depth:
@@ -49,11 +45,13 @@ def apply_strike_selection_criteria(choice_value, strike, expiry_df, option_type
                 strike = strike + base * int(itm_depth[0])
             else:
                 strike = strike - base * int(itm_depth[0])
-            option_symbol = expiry_df[(expiry_df['strike'].astype(int) == strike)]
-            instrument_id = int(option_symbol['instrument_token'].values[0])
-            lot_size = int(option_symbol['lot_size'].values[0])
+            
     else:
         raise ValueError(f"Invalid choice_value: {choice_value}. Must be 'ATM', 'ITM', or 'OTM'.")
+    option_symbol_df = expiry_df[(expiry_df['strike'].astype(int) == strike)]
+    instrument_id = int(option_symbol_df['instrument_token'].values[0])
+    lot_size = int(option_symbol_df['lot_size'].values[0])
+    option_symbol = option_symbol_df['tradingsymbol'].iloc[0]
 
     return option_symbol, lot_size, instrument_id
 
@@ -189,6 +187,15 @@ def apply_closest_premium_selection_criteria(xts, choice_value, expiry_df):
 
 
 def assign_strategy_variables(strategy):
+    """
+    Extracts and returns key attributes from the given strategy object.
+
+    Parameters:
+        strategy: An object containing the strategy details.
+
+    Returns:
+        tuple: Contains the index, DataFrame (df), and base values of the strategy.
+    """
     return strategy.index, strategy.df, strategy.base
 
 
