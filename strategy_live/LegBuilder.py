@@ -278,12 +278,6 @@ class LegBuilder:
                     pass
             
 
-             
-
-    
-    
-    
-
     
     def selection_criteria(self):
         """
@@ -295,9 +289,10 @@ class LegBuilder:
     
         if  choice.lower() == 'strike':
             self.option_symbol, self.lot_size, self.instrument_id = apply_strike_selection_criteria(choice_value, self.strike, self.expiry_df, self.option_type, self.base)
+            print(f"selected option is {self.option_symbol}")
         elif choice.lower() =='closest_premium':
             self.option_symbol, self.lot_size, self.instrument_id, nearest_premium = apply_closest_premium_selection_criteria(self.xts, choice_value, self.expiry_df)
-
+            print(f"selected option is {self.option_symbol}")
         elif choice.lower() in ['straddle_width', 'atm_pct', 'atm_straddle_premium']:
             self.option_symbol, self.lot_size, self.instrument_id = apply_straddle_width_selection_criteria(self.xts, choice, choice_value, self.combined_expiry_df, self.strike, self.expiry_df, self.base)
 
@@ -396,14 +391,10 @@ class LegBuilder:
                                       "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":0,
                                         "stopPrice": 1, "orderUniqueIdentifier": self.leg_name}
         self.execute_limit_order(order_param)
-
             
         self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol} market order placed')
         self.publisher.add_trade_subscriber(self)
         self.publisher.add_subscriber(self, [self.instrument_id])
-
-    def check_leg_conditions(self):
-        pass
     
     async def leg_place_order(self):        
         print('leg place order invoked')
