@@ -277,23 +277,7 @@ class XTS:
             print(e)
             return None
         
-    # def subscribe_symbols(self, instruments):
-        
-    #     params = {'instruments': instruments, 'xtsMessageCode': 1512}
-    #     session = requests.Session()
-    #     headers = self.headers
-    #     headers.update({'Authorization': self.market_token})
 
-    #     try:
-    #         r = session.request("POST",
-    #                                     self.subscription_url,
-    #                                     data=json.dumps(params),
-    #                                     params=None,
-    #                                     headers=headers
-    #                                     )
-    #         # print(r.content)
-    #     except Exception as e:
-    #         raise e
     def unsubscribe_symbols(self, instruments):
 
         params = {'instruments': instruments, 'xtsMessageCode': 1512}
