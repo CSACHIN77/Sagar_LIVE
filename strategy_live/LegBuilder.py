@@ -2,7 +2,8 @@ from utils import filter_dataframe
 import re
 import json
 import pandas as pd
-from utils import get_atm, apply_strike_selection_criteria, apply_closest_premium_selection_criteria,apply_straddle_width_selection_criteria
+from utils import get_atm
+from LegUtils import get_expiry_df, assign_strategy_variables, apply_strike_selection_criteria, apply_closest_premium_selection_criteria,apply_straddle_width_selection_criteria
 import time
 from io import StringIO
 from datetime import datetime, timedelta
@@ -44,8 +45,8 @@ class LegBuilder:
         self.current_price = None
         self.current_profit_loss = 0  
         self.order_status = None
-        self.assign_strategy_variables()
-        self.expiry_df = self.get_expiry_df()
+        self.index, self.df, self.base = assign_strategy_variables(self.strategy)
+        self.expiry_df , self.combined_expiry_df = get_expiry_df(self.df, self.index, self.expiry, self.option_type)
         self.trade_data = []
         self.tradebook = []
         self.market_data =[]
@@ -60,20 +61,12 @@ class LegBuilder:
         self.market_data_event = asyncio.Event()
         self.realised_pnl = 0
         self.instrument = None
-    def assign_strategy_variables(self):
-        # self.strike = self.strategy.strike
-        self.index = self.strategy.index
-        self.df = self.strategy.df        
-        # print(self.freeze_quantity)
-        self.base = self.strategy.base #100 if self.strategy.index == 'NIFTY BANK' else 50
+
 
     def execute_limit_order(self, order_param):
         print(f"calling execute order with parameters {order_param}")
         order = self.xts.place_limit_order(order_param)
         self.appOrderID = order['AppOrderID']
-
-    def update_price(self, price):
-        self.current_price = price
 
 
     async def receive_trades(self,data):
@@ -99,8 +92,6 @@ class LegBuilder:
             self.trade_data_event.set()
             print("trade data event set")
         
-        # update_tradebook(data, self.sl_price)
-        # print(self.market_data[-1:])
         if data['OrderUniqueIdentifier'].endswith('sl'):
             update_tradebook(data, self.sl_price)
             self.trade_position = None
@@ -131,10 +122,8 @@ class LegBuilder:
 
 
     async def receive_data(self,data):
-        # print(f'socket data from publisher for {self.leg_name} and data is \n {data["ExchangeInstrumentID"]}, {data["LastTradedPrice"]}')
         self.market_data.append(data)
         self.market_data_event.set()
-        #print(f'Received market data: {self.market_data}')
 
     async def reentry_logic(self):
         print('inside reentry function')
@@ -291,31 +280,7 @@ class LegBuilder:
 
              
 
-    def get_expiry_df(self):
-        """
-        Retrieve a df containing options data for a specific expiry date.
-
-        Parameters:
-        - self.df: df containing the complete options data.
-        - self.index: Index used for filtering the DataFrame.
-        - self.expiry: Integer representing the index of the expiry date to retrieve.
-        - self.option_type: String indicating the type of option (e.g., 'call' or 'put') to filter.
-        
-        Returns:
-        - expiry_df: df containing options data filtered for the specified expiry date and option type.
-        """
-        self.opt_df, self.monthly_expiry_list = filter_dataframe(self.df, [self.index])
-        expiry_list = list(set(self.opt_df['expiry']))
-        expiry_list.sort()
-        if (self.expiry == 2) & (expiry_list[0]== self.monthly_expiry_list[0]):
-            expiry_day = self.monthly_expiry_list[1]
-        elif((self.expiry == 2)):
-            expiry_day = self.monthly_expiry_list[0]
-        else:
-            expiry_day = expiry_list[self.expiry]
-        self.combined_expiry_df = self.opt_df[(self.opt_df['expiry']== expiry_day)]
-        expiry_df = self.opt_df[(self.opt_df['expiry']== expiry_day) & (self.opt_df['option_type']==self.option_type)] #& (self.option_type['strike']==self.strike)]
-        return expiry_df
+    
     
     
 

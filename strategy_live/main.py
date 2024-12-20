@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime
 from Strategy import Strategy
-from Leg.LegBuilder import LegBuilder
+from LegBuilder import LegBuilder
 from MarketSocket import MDSocket_io
 from InteractiveSocket import OrderSocket_io
 from datetime import datetime
@@ -47,7 +47,6 @@ xts.get_master({'exchangeSegmentList': ['NSEFO']})
 
 async def process_leg(leg):
     print("processing legs")
-    leg.get_expiry_df()
     print(f" simple momentum for {leg.leg_name} is {leg.simple_momentum}")
     leg.selection_criteria()
     if leg.simple_momentum == False or leg.range_breakout == False:
