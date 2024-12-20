@@ -53,11 +53,26 @@ class OrderSocket_io:
                             # self.reconnection_delay = min(self.reconnection_delay * (1 + self.randomization_factor), self.reconnection_delay_max) 
                     else:                
                         pass
-        # self.sid.connect(url=self.connection_url, headers={}, transports='websocket', namespaces=None, socketio_path='/interactive/socket.io')
-        # self.sid.wait()
+
 
     def register_event_handlers(self):
-        # Define event handlers
+        """
+        Registers event handlers for various socket events. Each event handler 
+        corresponds to a specific event emitted by the server and triggers the 
+        appropriate callback method.
+
+        Events and their corresponding handlers:
+        - 'connect': Triggered when the socket connects to the server (handled by `on_connect`).
+        - 'message': Handles incoming general messages (handled by `on_message`).
+        - 'joined': Triggered when a user joins (handled by `on_joined`).
+        - 'error': Handles error events (handled by `on_error`).
+        - 'order': Handles order-related updates (handled by `on_order`).
+        - 'trade': Handles trade updates (handled by `on_trade`).
+        - 'position': Handles position updates (handled by `on_position`).
+        - 'tradeConversion': Handles trade conversion updates (handled by `on_tradeconversion`).
+        - 'logout': Handles logout events (handled by `on_messagelogout`).
+        - 'disconnect': Triggered when the socket disconnects from the server (handled by `on_disconnect`).
+        """
         self.sid.on('connect', self.on_connect)
         self.sid.on('message', self.on_message)
         self.sid.on('joined', self.on_joined)
@@ -69,6 +84,7 @@ class OrderSocket_io:
         self.sid.on('logout', self.on_messagelogout)
         self.sid.on('disconnect', self.on_disconnect)
 
+
     def on_connect(self):
         print('Interactive socket connected successfully!')
 
@@ -76,55 +92,73 @@ class OrderSocket_io:
         print('I received a message!')
 
     def on_joined(self, data):
-        # print('Interactive socket joined successfully!' + data)
         pass
 
     def on_error(self, data):
         print('Interactive socket error!' + data)
 
     def on_order(self, data):
-        # print("Order placed!" + data)
+        """
+        Handles the 'order' event, processes incoming order data, and updates internal state.
+
+        Parameters:
+        data (str): A JSON string representing the order details.
+
+        Functionality:
+        - Parses the incoming JSON data and appends it to the `orders` list.
+        - Checks the `OrderStatus` field and performs actions based on its value:
+            - If `OrderStatus` is 'OPEN' and the `AppOrderID` exists in the `stoploss_app_id` list, 
+            prints a message indicating the order is being modified.
+            - If `OrderStatus` is 'NEW' and the `OrderType` is 'STOPLIMIT', 
+            appends the `AppOrderID` to the `stoploss_app_id` list and prints a confirmation message.
+        - Debugging messages are printed for insights during execution.
+        """
         data = json.loads(data)
         self.orders.append(data)
         # print(data)
-        if data['OrderStatus'].upper()=='OPEN':
-             if data['AppOrderID'] in self.stoploss_app_id:
-                  print(f"Modifying order because SL is getting skipped")
+        if data['OrderStatus'].upper() == 'OPEN':
+            if data['AppOrderID'] in self.stoploss_app_id:
+                print(f"Modifying order because SL is getting skipped")
         if data['OrderStatus'].upper() == 'NEW':
-            # self.logger.log(data)
-            if data['OrderType'].upper() =='STOPLIMIT':
+            # self.logger.log(data)  # Optional: Log data if logging is enabled
+            if data['OrderType'].upper() == 'STOPLIMIT':
                 print('adding app order id of trigger stoploss orders')
                 self.stoploss_app_id.append(data['AppOrderID'])
                 print(type(data['AppOrderID']))
+
             
-            # print(self.orders)
-        # print(data)
-        # if data['OrderStatus']=='New':
-        # if data['type']=='success':
-        #     print(f"market {data['OrderSide']}  order placed for {data['TradingSymbol']} with quantity {data['OrderQuantity']}")
 
     def on_trade(self, data):
         data= json.loads(data)
-        # self.logger.log(data)
+
         print('interactive on_trade method being called')
         # if data['OrderUniqueIdentifier'] == 'leg1':
         #     print(data)
         self.publisher.publish_trade(data)
-        # # self.trades.append(data)
-        # if str(data['OrderUniqueIdentifier']).startswith('sl_order'):
-        #     print(f'SL triggered for {data["TradingSymbol"]} @ {data["LastExecutionTransactTimeAPI"]}')
-        #     print(f"re-entry can be done now for the symbol {data['TradingSymbol']}")
-
-        # else:
-        #     print(f"{data['OrderSide']} order executed for {data['TradingSymbol']} @ {data['OrderAverageTradedPrice']} quantity {data['OrderQuantity']}")
+       
 
     def on_position(self, data):
-        # print("Position Retrieved!" + data)
-        data = json.loads(data)
-        # print(data)
-        # self.position.append(data)
-        # df = pd.DataFrame(self.position)
-        # df.to_csv('net_position.csv', index=False)
+        """
+        Handles the 'position' event, processes incoming position data, and optionally logs or stores it.
+
+        Parameters:
+        data (str): A JSON string containing position details.
+
+        Functionality:
+        - Parses the incoming JSON string into a Python dictionary.
+        - Optional actions (commented out):
+            - Logs the position data to the `position` list.
+            - Converts the `position` list into a Pandas DataFrame.
+            - Exports the DataFrame to a CSV file named 'net_position.csv'.
+        - Debugging messages or additional processing can be added as needed.
+        """
+        # print("Position Retrieved!" + data)  # Debugging: Print a message when position data is received
+        data = json.loads(data)  # Parse the JSON string into a dictionary
+        # print(data)  # Debugging: Print the parsed position data
+        # self.position.append(data)  # Store the position data in a list
+        # df = pd.DataFrame(self.position)  # Convert the list of positions to a Pandas DataFrame
+        # df.to_csv('net_position.csv', index=False)  # Export the DataFrame to a CSV file
+
         
 
     def on_tradeconversion(self, data):
