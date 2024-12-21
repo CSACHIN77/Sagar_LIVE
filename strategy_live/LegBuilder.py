@@ -8,11 +8,12 @@ import time
 from io import StringIO
 from datetime import datetime, timedelta
 import asyncio
+from business_logic.OrderManager import execute_limit_order, roll_strike_handler
 from utils import Logger, update_tradebook, slice_orders, get_rolling_strike
 import os
 import sys
 sys.path.append(os.path.abspath('../../Sagar_common'))
-
+from business_logic.OrderManager import leg_place_order
 try:
     from common_function import fetch_parameter
 except ImportError as e:
@@ -63,10 +64,7 @@ class LegBuilder:
         self.instrument = None
 
 
-    def execute_limit_order(self, order_param):
-        print(f"calling execute order with parameters {order_param}")
-        order = self.xts.place_limit_order(order_param)
-        self.appOrderID = order['AppOrderID']
+    
 
 
     async def receive_trades(self,data):
@@ -83,7 +81,7 @@ class LegBuilder:
         if data['OrderUniqueIdentifier'].endswith(('sm', 'rb')):
             try:
                 self.trade_data_event.set()
-                self.leg_place_order()
+                self._leg_place_order()
 
             except:
                 pass
@@ -390,73 +388,17 @@ class LegBuilder:
         order_param = {"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
                                       "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":0,
                                         "stopPrice": 1, "orderUniqueIdentifier": self.leg_name}
-        self.execute_limit_order(order_param)
+        execute_limit_order(self, order_param)
             
         self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol} market order placed')
         self.publisher.add_trade_subscriber(self)
         self.publisher.add_subscriber(self, [self.instrument_id])
     
-    async def leg_place_order(self):        
-        print('leg place order invoked')
-        print('waiting for the trade data to be set')
-        try:
-            await asyncio.wait_for(self.trade_data_event.wait(), timeout=5)
-            self.trade_data_event.clear()
-        except asyncio.TimeoutError:
-           
-           print("modify order to market order logic here")
-           history_order = self.xts.order_history(self.appOrderID)
-           print(history_order)
-           if history_order['type']=='success':
-            modifiedProductType = history_order['result'][0]['ProductType']
-            modifiedOrderType = history_order['result'][0]['OrderType']
-            modifiedOrderQuantity = history_order['result'][0]['LeavesQuantity']
-            orderUniqueIdentifier = history_order['result'][0]['OrderUniqueIdentifier']   
-           modified_order = {
+    async def _leg_place_order(self):
+        leg_place_order(self)
 
-                "appOrderID": self.appOrderID,
-                "modifiedProductType": modifiedProductType,
-                "modifiedOrderType": "MARKET",
-                "modifiedOrderQuantity": modifiedOrderQuantity,
-                "modifiedDisclosedQuantity": 0,
-                "modifiedLimitPrice": 0,
-                "modifiedStopPrice": 0,
-                "modifiedTimeInForce": "DAY",
-                "orderUniqueIdentifier": orderUniqueIdentifier
-            }
-           modified_order = self.xts.modify_order(modified_order)
-        latest_trade = self.trade_data[-1:][0]
-        if latest_trade['OrderStatus']=='Filled':
-            self.trade_entry_price = float(latest_trade['OrderAverageTradedPrice'])
-            trade_side = latest_trade['OrderSide']
-            traded_quantity = latest_trade['OrderQuantity']
-            entry_timestmap = latest_trade['ExchangeTransactTime']
-            entry_slippage = self.trade_entry_price - self.entry_price
-            trade = {'symbol': self.instrument_id, 'entry_price': self.entry_price, 'trade_price': self.trade_entry_price,  'trade' : trade_side, 'quantity' : traded_quantity, 'timestamp': entry_timestmap, 'entry_slippage': round((self.entry_price - self.trade_entry_price), 2)}
-            self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order filled {self.entry_price}')
-            
-        # print(f'placing SL order now for {self.leg_name} SL points {self.stop_loss}')
-        if self.stop_loss[0].lower()=='points':
-            self.stop_loss = self.stop_loss[1]
-        elif self.stop_loss[0].lower() == 'percent':
-            self.stop_loss = round(self.trade_entry_price*self.stoploss[1]/100, 2)
-        if trade_side.upper() == 'BUY':
-            self.trade_position = 'long'
-            print('trade position is long')
-            self.sl_price = self.trade_entry_price - self.stop_loss
-            trigger_price = self.sl_price - self.trigger_tolerance
-        else: 
-            self.trade_position = 'short'
-            print('trade position is short')
-            self.sl_price = self.trade_entry_price + self.stop_loss
-            trigger_price = self.sl_price + self.trigger_tolerance
-        orderSide = 'BUY' if trade_side.upper() == 'SELL' else 'SELL'
-        orderid = f"{self.leg_name}_sl"
-        
-        order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id,
-                                           "orderSide": orderSide, "orderQuantity":traded_quantity, "limitPrice": trigger_price, 'stopPrice':self.sl_price, 'orderUniqueIdentifier': orderid})
-        self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, SL order placed with limit price {self.sl_price}')
-        # self.pegasus.log(order)
+    async def _roll_strike_handler(self, ltp, position):
+        roll_strike_handler(self, ltp, position)
 
     async def calculate_mtm(self):
         quantity = self.lot_size*self.total_lots 
@@ -479,7 +421,7 @@ class LegBuilder:
                     self.pnl = round((current_ltp - self.trade_entry_price)*quantity, 2) + self.realised_pnl
                     # await self.stoploss_trail(current_ltp, "long")
                     if self.roll_strike:
-                        await self.roll_strike_handler(current_ltp, "long")
+                        await self._roll_strike_handler(current_ltp, "long")
                     # print(f'm2m  {self.leg_name} is {self.pnl}')
                     # if self.pnl > self.max_profit:
                     #     self.max_profit
@@ -489,7 +431,7 @@ class LegBuilder:
                 else :
                     self.pnl = round((self.trade_entry_price - current_ltp )*quantity, 2) + self.realised_pnl
                     await self.stoploss_trail(current_ltp, "short")
-                    await self.roll_strike_handler(current_ltp, "short")
+                    await self._roll_strike_handler(current_ltp, "short")
                     # print(f'm2m  {self.leg_name} is {self.pnl}')
                     # if self.pnl > self.max_profit:
                     #     self.max_profit
@@ -499,7 +441,7 @@ class LegBuilder:
             await asyncio.sleep(3)
         # self.strategy.total_pnl += self.pnl
             
-    # async def roll_strike_handler(self,ltp, position):
+    # async def _roll_strike_handler(self,ltp, position):
     #         print('entering roll_strike handler')
     #         if self.roll_strike: 
     #             if ((position=="long") and ((ltp-self.trade_entry_price)> self.roll_strike["roll_strike_value"])):
@@ -531,40 +473,7 @@ class LegBuilder:
     #                 print('no need to roll strike')
     
             
-    async def roll_strike_handler(self, ltp, position):
-        print('entering roll_strike handler')
-        if self.roll_strike and position in ("long", "short"):
-            current_roll_pnl = ltp - self.trade_entry_price
-            sign = 1 if position == "long" else -1
-            price_diff = sign * current_roll_pnl
-
-            if price_diff > self.roll_strike["roll_strike_value"]:
-                # Square off existing order
-                # Cancel trigger order
-
-                current_ltp = self.strategy.get_underlyingltp()
-                current_atm = get_atm(current_ltp, self.base)
-                roll_strike_atm = get_rolling_strike(
-                    current_atm,
-                    self.option_type,
-                    self.roll_strike['roll_strike_strike_type'],
-                    self.base
-                )
-                print(f"roll strike handler current ltp is {current_ltp}")
-
-                selected_strike = int(roll_strike_atm)
-                print(selected_strike)
-
-                # Adjust the strike based on position
-                adjustment = sign * self.base * self.roll_strike["roll_level"]
-                selected_roll_strike = int(selected_strike + adjustment)
-
-                roll_option_name = self.expiry_df[
-                    self.expiry_df['strike'].astype(int) == selected_roll_strike
-                ]
-                print(f"selected strike is {roll_option_name['tradingsymbol'].values[0]}")
-            else:
-                print('Roll Strike is False')
+    
 
 
 
