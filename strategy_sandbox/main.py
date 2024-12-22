@@ -53,7 +53,7 @@ async def run_strategy(xts, strategy_details, soc):
         print(f'sleeping for {(strategy.entry_time - time_now).total_seconds()}')
         await asyncio.sleep((strategy.entry_time - time_now).total_seconds())
 
-    underlying_ltp = strategy.get_underlying_ltp()
+    underlying_ltp = 52400 #strategy.get_underlying_ltp()
     if not underlying_ltp:
         retry_counter = 0
         while retry_counter <=3:

@@ -6,7 +6,7 @@ from LegBuilder import LegBuilder
 from MarketSocket import MDSocket_io
 from InteractiveSocket import OrderSocket_io
 from datetime import datetime
-from Broker import XTS
+from Broker.xtsBroker import XTS
 from creds import creds
 from utils import get_atm, create_tradebook_table, broker_login
 from Publisher import Publisher

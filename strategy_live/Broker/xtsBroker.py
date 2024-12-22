@@ -62,6 +62,7 @@ class XTS:
             logger.log(f'login failed @ {datetime.now()}')
             return None
 
+
     def interactive_login(self, secret_key, app_key):
         payload = {
             "secretKey": secret_key,

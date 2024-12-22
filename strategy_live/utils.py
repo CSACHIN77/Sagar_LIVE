@@ -8,8 +8,6 @@ import os
 import re
 import time
 from io import StringIO
-from MarketSocket import MDSocket_io
-from InteractiveSocket import OrderSocket_io
 from datetime import datetime, timedelta
 import logging
 

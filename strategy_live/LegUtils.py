@@ -66,6 +66,7 @@ def get_option_details(option_symbol_df):
         - lot_size (int): The lot size as an integer.
         - option_symbol (str): The trading symbol as a string.
     """
+    print(f"option symbol df is {option_symbol_df}")
     instrument_id = int(option_symbol_df['instrument_token'].values[0])
     lot_size = int(option_symbol_df['lot_size'].values[0])
     option_symbol = option_symbol_df['tradingsymbol'].iloc[0]

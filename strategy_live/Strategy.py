@@ -55,7 +55,7 @@ class Strategy:
         underlying_ltp = get_underlying_ltp(self)
         return underlying_ltp
 
-    async def _calculate_overall_atm(self, legs):
+    async def _calculate_overall_pnl(self, legs):
         calculate_overall_pnl(self, legs)
 
     def convert_to_datetime(self, timestamp):

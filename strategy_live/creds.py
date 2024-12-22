@@ -5,3 +5,11 @@ creds = {
     'interactive_secret': "Hkrp044@eR",
     'port': "https://ttblaze.iifl.com"
 }
+
+db_creds = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'pegasus',
+    'database': 'sagar_dataharvesting',
+    'table_name': 'data_harvesting_20241210',
+}

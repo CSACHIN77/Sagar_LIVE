@@ -2,9 +2,8 @@ import asyncio
 from datetime import datetime
 from Strategy import Strategy
 from LegBuilder import LegBuilder
-from MarketSocket import MDSocket_io
 from datetime import datetime
-from Broker import XTS
+
 import os
 import sys
 from utils import get_atm, create_tradebook_table, broker_login, initialize_sockets
@@ -14,21 +13,57 @@ publisher = Publisher()
 create_tradebook_table()
 import warnings
 import asyncio
+from pathlib import Path
+
 warnings.filterwarnings("ignore")
 port = "https://ttblaze.iifl.com"
-xts = XTS()  
+# xts = XTS()  
 sys.path.append(os.path.abspath('../../Sagar_common'))
+
+# Add the parent directory (Sagar_LIVE) to the Python path
 
 try:
     from common_function import fetch_parameter
 except ImportError as e:
     print(f"Error importing 'fetch_parameter': {e}")
-environment = "dev"
-creds = fetch_parameter(environment, "live_creds")
-market_token, interactive_token, userid = broker_login(xts, creds)
-xts.market_token, xts.interactive_token, xts.userid  = market_token, interactive_token, userid
-interactive_soc, soc = initialize_sockets(market_token, interactive_token, port, userid, publisher)
-xts.get_master({'exchangeSegmentList': ['NSEFO']})
+environment = "sandbox"
+if environment =="dev":
+    from MarketSocket.sandboxMarketSocket import MDSocket_io
+    from Broker.xtsBroker import XTS
+    from InteractiveSocket.xtsInteractiveSocket import OrderSocket_io
+    creds = fetch_parameter(environment, "live_creds")
+    market_token, interactive_token, userid = broker_login(xts, creds)
+    xts.market_token, xts.interactive_token, xts.userid  = market_token, interactive_token, userid
+    interactive_soc, soc = initialize_sockets(market_token, interactive_token, port, userid, publisher)
+    xts.get_master({'exchangeSegmentList': ['NSEFO']})
+
+    
+else :
+    from MarketSocket.sandboxMarketSocket import MDSocket_io
+    from InteractiveSocket.sandboxInteractiveSocket import OrderSocket_io
+    from Broker.sandboxBroker import XTS
+    port = "localhost:5001" 
+    interactive_port = '8050'
+    soc = MDSocket_io( port=port, publisher=publisher) #initialize 
+    interactive_soc = OrderSocket_io(interactive_port, publisher)
+    # soc.on_connect = on_connect
+    # el = soc.get_emitter()
+    # el.on('connect', soc.on_connect)
+    # el.on('1512-json-full', soc.on_message1512_json_full)
+    soc.connect()
+    interactive_soc.connect()
+    # interactive_soc.on_trade = on_trade
+    interactive_el = interactive_soc.get_emitter()
+    interactive_el.on('trade', interactive_soc.on_trade)
+    interactive_el.on('order', interactive_soc.on_order)
+    xts = XTS(soc)  
+
+
+# market_token, interactive_token, userid = broker_login(xts, creds)
+# xts.market_token, xts.interactive_token, xts.userid  = market_token, interactive_token, userid
+# xts.update_master_db()
+
+    
 
 async def process_leg(leg):
     print("processing legs")
@@ -43,11 +78,15 @@ async def run_strategy(xts, strategy_details):
     time_now = datetime.now()
     print(f"time is {datetime.now()}")
     print(time_now, strategy.entry_time)
+    if environment !='dev':
+        while soc.current_data_time is None:
+            print("waiting for current_data_time to set.")
+            await asyncio.sleep(1)
     if time_now < strategy.entry_time:
         print(f'sleeping for {(strategy.entry_time - time_now).total_seconds()}')
         await asyncio.sleep((strategy.entry_time - time_now).total_seconds())
 
-    underlying_ltp = strategy.get_underlying()
+    underlying_ltp = 52300 #strategy.get_underlying()
     if not underlying_ltp:
         retry_counter = 0
         while retry_counter <=3:
@@ -90,7 +129,7 @@ async def run_strategy(xts, strategy_details):
         await asyncio.gather(
             process_leg(leg1),
             process_leg(leg2),
-            strategy.calculate_overall_pnl(legs)
+            strategy._calculate_overall_pnl(legs)
         )
     else:
         print('unable to find underlying ltp, exiting !!')

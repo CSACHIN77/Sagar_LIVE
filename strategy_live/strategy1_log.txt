@@ -1,0 +1,3 @@
+strategy1leg2 : BANKNIFTY24DEC52200PE, entry_price before placing order is 205.95
+strategy1leg1 : BANKNIFTY24DEC52000CE, entry_price before placing order is 1842.8
+strategy1leg2 : BANKNIFTY24DEC52200PE, entry_price before placing order is 207.15

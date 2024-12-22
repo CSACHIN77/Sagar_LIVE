@@ -2,6 +2,7 @@ from utils import filter_dataframe
 import re
 import json
 import pandas as pd
+from business_logic.OrderManager import stoploss_trail
 from utils import get_atm, apply_strike_selection_criteria, apply_closest_premium_selection_criteria,apply_straddle_width_selection_criteria
 import time
 from io import StringIO
@@ -218,77 +219,8 @@ class LegBuilder:
             self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, Re-entry SL {orderSide} order placed at {self.sl_price}')
             self.trade_data_event.clear()
     
-    async def stoploss_trail(self, ltp, trade_position):
-
-        # print("inside stoploss_trail function")
-        if (self.trailing_sl) and trade_position =='long':
-            price_gap = ltp - self.entry_price
-            if price_gap > self.trailing_sl["priceMove"]:
-                orders = self.interactive.orders
-
-                trail_increment_factor = price_gap//self.trailing_sl["priceMove"]
-                original_sl = self.trade_entry_price - self.stop_loss
-                updated_sl = original_sl + trail_increment_factor*self.trailing_sl["sl_adjustment"]
-                if updated_sl > self.sl_price:
-                    print(f"sl {self.sl_price} adjusted to {updated_sl} current_price is {ltp} and entry_price {self.entry_price} in {self.leg_name}")
-                    self.sl_price = updated_sl
-                    order_uid = f"{self.leg_name}_sl"
-                    for order in orders[::-1]:
-                        print(order)
-                        if order["orderUniqueIdentifier"] ==order_uid:
-                            app_id = order["appOrderID"]
-                            print(f"type of app_id is {type(app_id)} {app_id}")
-                            break
-                    params = {
-                        "appOrderID": app_id,
-                        "modifiedProductType": "NRML",
-                        "modifiedOrderType": "STOPLIMIT",
-                        "modifiedOrderQuantity": self.lot_size*self.total_lots,
-                        "modifiedDisclosedQuantity": 0,
-                        "modifiedLimitPrice": float(updated_sl-self.trigger_tolerance),
-                        "modifiedStopPrice": float(updated_sl),
-                        "modifiedTimeInForce": "DAY",
-                        "orderUniqueIdentifier": order_uid
-                        }
-                    self.xts.modify_order(params)
-                    self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, SL updated to {self.sl_price}')
-                else:
-                    pass
-        elif (self.trailing_sl) and (trade_position=='short') :       
-            price_gap = self.entry_price - ltp 
-            if price_gap > self.trailing_sl["priceMove"]:
-                orders = self.interactive.orders
-                print(self.stop_loss, self.trade_entry_price)
-                trail_increment_factor = price_gap//self.trailing_sl["priceMove"]
-                original_sl =  self.stop_loss + self.trade_entry_price
-                updated_sl = original_sl - trail_increment_factor*self.trailing_sl["sl_adjustment"]
-                if updated_sl < self.sl_price:
-                    print(f"sl {self.sl_price} adjusted to {updated_sl} current_price is {ltp} and entry_price {self.entry_price}")
-                    self.sl_price = updated_sl
-                    order_uid = f"{self.leg_name}_sl"
-                    for order in orders[::-1]:
-                        if order["OrderUniqueIdentifier"] ==order_uid:
-                            
-                            app_id = order["AppOrderID"]
-                           
-                            break
-                    params = {
-                        "appOrderID": app_id,
-                        "modifiedProductType": "NRML",
-                        "modifiedOrderType": "STOPLIMIT",
-                        "modifiedOrderQuantity": int(self.lot_size*self.total_lots),
-                        "modifiedDisclosedQuantity": 0,
-                        "modifiedLimitPrice": float(updated_sl+self.trigger_tolerance),
-                        "modifiedStopPrice": float(updated_sl),
-                        "modifiedTimeInForce": "DAY",
-                        "orderUniqueIdentifier": order_uid
-                        }
-                    self.xts.modify_order(params)
-                    self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, SL updated to {self.sl_price}')
-
-                else:
-                    pass
-            
+    async def _stoploss_trail(self, ltp, trade_position):
+        stoploss_trail(self, ltp, trade_position)
 
              
 
@@ -496,7 +428,7 @@ class LegBuilder:
                 current_ltp = self.market_data[-1:][0]['LastTradedPrice']
                 if self.trade_position.lower()== 'long':
                     self.pnl = round((current_ltp - self.trade_entry_price)*quantity, 2) + self.realised_pnl
-                    # await self.stoploss_trail(current_ltp, "long")
+                    # await self._stoploss_trail(current_ltp, "long")
                     if self.roll_strike:
                         await self.roll_strike_handler(current_ltp, "long")
                     # print(f'm2m  {self.leg_name} is {self.pnl}')
@@ -507,7 +439,7 @@ class LegBuilder:
                     # print(f'm2m  {self.leg_name} is {self.pnl} ')
                 else :
                     self.pnl = round((self.trade_entry_price - current_ltp )*quantity, 2) + self.realised_pnl
-                    await self.stoploss_trail(current_ltp, "short")
+                    await self._stoploss_trail(current_ltp, "short")
                     await self.roll_strike_handler(current_ltp, "short")
                     # print(f'm2m  {self.leg_name} is {self.pnl}')
                     # if self.pnl > self.max_profit:
