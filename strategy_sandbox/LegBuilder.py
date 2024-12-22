@@ -585,7 +585,7 @@ class LegBuilder:
             # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
             order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position, "orderQuantity":int(self.total_lots * self.lot_size), "limitPrice": trigger_price, 'stopPrice':self.entry_price, 'orderUniqueIdentifier': self.leg_name})
             print(f"Order placed for {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}")
-            self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, order placed for simple momentum {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}', self.soc.current_data_time)
+            self.strategy.logger.log(f"{self.leg_name} : {self.instrument.tradingsymbol}, order placed for simple momentum {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}  {self.soc.current_data_time}")
             print(order)
         else:
             # self.freeze_quantity = int(self.df[[self.df.instrument_token]==self.instrument_id].FreezeQty.values[0])-1
