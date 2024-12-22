@@ -35,6 +35,19 @@ class XTS:
         else:
             print("Failed to place stop-limit order:", response.json())
         return response.json()
+    
+    def order_history(self, AppOrderID):
+        headers = self.headers
+        # headers.update({'Authorization': self.interactive_token})
+        # try:
+        #     params = {"appOrderID" : AppOrderID}
+        #     response = requests.get(url=self.limit_order_url, params = params, headers=headers)
+        #     print(response.json())
+        #     return response.json()
+        # except Exception as e:
+        #     print(e)
+        #     return e
+        
     def place_limit_order(self, params):
         headers = self.headers
         headers.update({'Authorization': self.interactive_token})
@@ -195,7 +208,20 @@ class XTS:
         print('Retrieved master database contents')
         return df
     
+    def modify_order(self, params):
+        headers = self.headers
+        # headers.update({'Authorization': self.interactive_token})
+        # try:
+        #     payload = params
+        #     response = requests.put(self.limit_order_url, data=json.dumps(params),headers=headers)
+        #     print(response.json())
+        #     return  response.json()['result']
 
+
+        # except Exception as e:
+        #     print(e)
+        #     return None
+        
     def get_quotes(self, instruments):
         current_data_time = self.soc.current_data_time
         
@@ -393,3 +419,19 @@ class XTS:
             print(f"Error in complete_square_off: {e}")
             raise RuntimeError("Square off operation failed") from e
 
+    def get_historical_data(self, params):
+        headers = self.headers
+        # headers.update({'Authorization': self.market_token})
+        # try:
+        #     params = params
+        #     response = requests.get(self.historical_url, params=params, headers=headers)
+            
+        #     if response.status_code == 200:
+        #         return response.json()
+        #     else:
+        #         print("Failed to retrieve data. Status code:", response.status_code)
+        #         print("Response:", response.text)
+        #         return None
+        # except Exception as e:
+        #     print("Exception occurred:", e)
+        #     return None
