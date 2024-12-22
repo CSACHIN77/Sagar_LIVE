@@ -14,10 +14,9 @@ try:
 
     # Writing the query
     query = """
-        SELECT * 
+        SELECT count(*) 
         FROM data_harvesting_20241210
-        WHERE exchangeInstrumentid = 26001
-        LIMIT 100;
+        WHERE exchangeInstrumentid = 26000;
     """
 
     # Executing the query
@@ -25,10 +24,10 @@ try:
 
     # Fetching the results
     results = cursor.fetchall()
-
+    print(results)
     # Printing the results
-    for row in results:
-        print(row)
+    # for row in results:
+    #     print(row)
 
 except mysql.connector.Error as e:
     print(f"Error: {e}")

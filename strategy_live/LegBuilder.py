@@ -9,7 +9,8 @@ from io import StringIO
 from datetime import datetime, timedelta
 import asyncio
 from business_logic.OrderManager import execute_limit_order, roll_strike_handler
-from utils import Logger, update_tradebook, slice_orders, get_rolling_strike
+from utils import Logger, slice_orders, get_rolling_strike
+# from utils import update_tradebook
 import os
 import sys
 sys.path.append(os.path.abspath('../../Sagar_common'))
@@ -70,7 +71,7 @@ class LegBuilder:
     async def receive_trades(self,data):
         print(f'trade data received from publisher for {self.leg_name}')#and data is \n {data}')
         self.trade_data.append(data)
-        print('trade data has been appended')
+        print(f'trade data has been appended {data}')
         try:
             dt = datetime.strptime(data['ExchangeTransactTimeAPI'], '%d-%m-%Y %H:%M:%S')
             data['ExchangeTransactTimeAPI'] = dt.strftime('%Y-%m-%d %H:%M:%S')
@@ -81,6 +82,7 @@ class LegBuilder:
         if data['OrderUniqueIdentifier'].endswith(('sm', 'rb')):
             try:
                 self.trade_data_event.set()
+                
                 self._leg_place_order()
 
             except:
@@ -91,7 +93,7 @@ class LegBuilder:
             print("trade data event set")
         
         if data['OrderUniqueIdentifier'].endswith('sl'):
-            update_tradebook(data, self.sl_price)
+            # update_tradebook(data, self.sl_price)
             self.trade_position = None
             print('changed trade_position to none')
             print(f'no of renentry {self.no_of_reentry} and reentry count {self.reentry_count}')
@@ -106,13 +108,14 @@ class LegBuilder:
         elif data['OrderUniqueIdentifier'].endswith('momentum'):
             self.trade_position = True
             self.xts.place
-            update_tradebook(data, self.entry_price)
+            # update_tradebook(data, self.entry_price)
         elif data['OrderUniqueIdentifier'].endswith('cover'):
-            update_tradebook(data)
+            # update_tradebook(data)
             print("updated db for covering pending orders")
 
         else:
-            update_tradebook(data, self.entry_price)
+            pass
+            # update_tradebook(data, self.entry_price)
 
         self.pegasus.log(data)
         print(data['ExchangeTransactTimeAPI'])
@@ -206,7 +209,7 @@ class LegBuilder:
     
     async def stoploss_trail(self, ltp, trade_position):
 
-        # print("inside stoploss_trail function")
+        print("inside stoploss_trail function")
         if (self.trailing_sl) and trade_position =='long':
             price_gap = ltp - self.entry_price
             if price_gap > self.trailing_sl["priceMove"]:
@@ -238,6 +241,7 @@ class LegBuilder:
                         }
                     self.xts.modify_order(params)
                     self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, SL updated to {self.sl_price}')
+                    print(f'{self.leg_name} : {self.instrument.tradingsymbol}, SL updated to {self.sl_price}')
                 else:
                     pass
         elif (self.trailing_sl) and (trade_position=='short') :       
@@ -297,6 +301,7 @@ class LegBuilder:
         self.xts.subscribe_symbols([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}])
         response = self.xts.get_quotes([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}])
         ltp_data = response['result']['listQuotes']
+        print(f"testing ltp data is {ltp_data}")
         ltp = json.loads(ltp_data[0])['LastTradedPrice']
         self.entry_price = float(ltp)
  
@@ -386,16 +391,17 @@ class LegBuilder:
             #                             "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
                     
         order_param = {"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
-                                      "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":0,
-                                        "stopPrice": 1, "orderUniqueIdentifier": self.leg_name}
-        execute_limit_order(self, order_param)
+                                      "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":self.entry_price,
+                                        "stopPrice": 0, "orderUniqueIdentifier": self.leg_name}
+        self.appOrderID = execute_limit_order(self, order_param)
             
         self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol} market order placed')
         self.publisher.add_trade_subscriber(self)
         self.publisher.add_subscriber(self, [self.instrument_id])
     
     async def _leg_place_order(self):
-        leg_place_order(self)
+        f"calling _leg_place_order function"
+        await leg_place_order(self)
 
     async def _roll_strike_handler(self, ltp, position):
         roll_strike_handler(self, ltp, position)
@@ -422,7 +428,7 @@ class LegBuilder:
                     # await self.stoploss_trail(current_ltp, "long")
                     if self.roll_strike:
                         await self._roll_strike_handler(current_ltp, "long")
-                    # print(f'm2m  {self.leg_name} is {self.pnl}')
+                    print(f'm2m  {self.leg_name} is {self.pnl}')
                     # if self.pnl > self.max_profit:
                     #     self.max_profit
                     # elif self.pnl < self.max_loss:
@@ -432,13 +438,13 @@ class LegBuilder:
                     self.pnl = round((self.trade_entry_price - current_ltp )*quantity, 2) + self.realised_pnl
                     await self.stoploss_trail(current_ltp, "short")
                     await self._roll_strike_handler(current_ltp, "short")
-                    # print(f'm2m  {self.leg_name} is {self.pnl}')
+                    print(f'm2m  {self.leg_name} is {self.pnl}')
                     # if self.pnl > self.max_profit:
                     #     self.max_profit
                     # elif self.pnl < self.max_loss:
                     #     self.max_loss = self.pnl
                     # print(f'm2m  {self.leg_name} is {self.pnl} ')
-            await asyncio.sleep(3)
+            await asyncio.sleep(2)
         # self.strategy.total_pnl += self.pnl
             
     # async def _roll_strike_handler(self,ltp, position):

@@ -27,6 +27,7 @@ class Publisher:
                 
     def publish_trade(self, data):
         print('publish trade is invoked')
+        print(self.trade_subscriber)
         for sub in self.trade_subscriber:
             # print(data)
             # print(sub['subscriber'].leg_name)

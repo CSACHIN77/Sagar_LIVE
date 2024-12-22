@@ -5,6 +5,7 @@ def execute_limit_order(leg, order_param):
     print(f"calling execute order with parameters {order_param}")
     order = leg.xts.place_limit_order(order_param)
     appOrderID = order['AppOrderID']
+    print(f"app order id in execute_limit_order is {appOrderID}")
     return appOrderID
 
 
@@ -21,10 +22,10 @@ async def leg_place_order(leg_instance):
            history_order = leg_instance.xts.order_history(leg_instance.appOrderID)
            print(history_order)
            if history_order['type']=='success':
-            modifiedProductType = history_order['result'][0]['ProductType']
-            modifiedOrderType = history_order['result'][0]['OrderType']
-            modifiedOrderQuantity = history_order['result'][0]['LeavesQuantity']
-            orderUniqueIdentifier = history_order['result'][0]['OrderUniqueIdentifier']   
+                modifiedProductType = history_order['result'][0]['ProductType']
+                modifiedOrderType = history_order['result'][0]['OrderType']
+                modifiedOrderQuantity = history_order['result'][0]['LeavesQuantity']
+                orderUniqueIdentifier = history_order['result'][0]['OrderUniqueIdentifier']   
            modified_order = {
 
                 "appOrderID": leg_instance.appOrderID,
@@ -38,12 +39,20 @@ async def leg_place_order(leg_instance):
                 "orderUniqueIdentifier": orderUniqueIdentifier
             }
            modified_order = leg_instance.xts.modify_order(modified_order)
+           print(f"modified order is {modified_order}")
+           print(f"leg instance is {leg_instance.leg_name}")
+           if modified_order['type']=='success':
+                leg_instance.strategy.logger.log(f'{leg_instance.leg_name} : {leg_instance.instrument.tradingsymbol}, order modified to market order')
+           else:
+                leg_instance.strategy.logger.log(f'{leg_instance.leg_name} : {leg_instance.instrument.tradingsymbol}, order modification failed')
+           return
+
         latest_trade = leg_instance.trade_data[-1:][0]
         if latest_trade['OrderStatus']=='Filled':
             leg_instance.trade_entry_price = float(latest_trade['OrderAverageTradedPrice'])
             trade_side = latest_trade['OrderSide']
             traded_quantity = latest_trade['OrderQuantity']
-            entry_timestmap = latest_trade['ExchangeTransactTime']
+            entry_timestmap = latest_trade['ExchangeTransactTimeAPI']
             entry_slippage = leg_instance.trade_entry_price - leg_instance.entry_price
             trade = {'symbol': leg_instance.instrument_id, 'entry_price': leg_instance.entry_price, 'trade_price': leg_instance.trade_entry_price,  'trade' : trade_side, 'quantity' : traded_quantity, 'timestamp': entry_timestmap, 'entry_slippage': round((leg_instance.entry_price - leg_instance.trade_entry_price), 2)}
             leg_instance.strategy.logger.log(f'{leg_instance.leg_name} : {leg_instance.instrument.tradingsymbol}, order filled {leg_instance.entry_price}')

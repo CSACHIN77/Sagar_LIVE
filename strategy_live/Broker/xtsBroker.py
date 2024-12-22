@@ -221,7 +221,7 @@ class XTS:
             params["orderUniqueIdentifier"]= f'{params["orderUniqueIdentifier"]}'
             payload = params
             response = requests.post(self.limit_order_url, json = payload,headers=headers)
-            
+            print(f"limit_order response : {response.json()['result']}")
             return  response.json()['result']
         except Exception as e:
             print(e)

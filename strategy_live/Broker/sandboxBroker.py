@@ -18,14 +18,14 @@ class XTS:
     def subscribe_symbols(self, instruments):
         self.soc.subscribe_symbols(instruments)
     def place_market_order(self, order_params):
-        print(f"order placed through market order {order_params}")
+        # print(f"order placed through market order {order_params}")
         url = f"{self.base_url}/placeMarketOrder"
         response = requests.post(url, json=order_params)
         if response.status_code == 200:
-            print("Order placed successfully:", response.json())
+            print("testing Order placed successfully:", response.json()['order'])
         else:
             print("Failed to place order:", response.json())
-        return response.json()
+        return response.json()['order']
 
     def place_stop_limit_order(self, sl_order_params):
         url = f"{self.base_url}/placeSLorder"
@@ -37,7 +37,23 @@ class XTS:
         return response.json()
     
     def order_history(self, AppOrderID):
-        headers = self.headers
+        history_order ={}
+        history_order['result']=[]
+        base_path = os.path.dirname(__file__)
+        file_path = os.path.abspath(os.path.join(base_path, "..", "..", "strategy_sandbox", "orderbook.json"))
+        print(f"file path is {file_path}")
+        print(f"app order id in order history is {AppOrderID} {type(AppOrderID)}")
+        if os.path.exists(file_path):
+
+            with open(file_path, 'r') as file:
+                orders = json.load(file)
+            for order in orders:
+                if order.get('AppOrderID')== AppOrderID:
+                    print(order)
+                    history_order['type'] = 'success'
+                    history_order['result']= [order]
+                    return history_order
+        # headers = self.headers
         # headers.update({'Authorization': self.interactive_token})
         # try:
         #     params = {"appOrderID" : AppOrderID}
@@ -48,23 +64,35 @@ class XTS:
         #     print(e)
         #     return e
         
-    def place_limit_order(self, params):
-        headers = self.headers
-        headers.update({'Authorization': self.interactive_token})
-        try:
-            # params["exchangeSegment"]="NSEFO"
-            params["exchangeSegment"]="NSECM"
-            params["productType"] ="CNC"
-            params["orderType"]="LIMIT"
-            params["timeInForce"]="DAY"
-            params["disclosedQuantity"]=0
-            params["orderUniqueIdentifier"]= f'{params["orderUniqueIdentifier"]}'
-            payload = params
-            response = requests.post(self.limit_order_url, json = payload,headers=headers)
-            
-            return  response.json()['result']
-        except Exception as e:
-            print(e)
+    def place_limit_order(self, order_params):
+        print(f"order placed through limit order {order_params}")
+        url = f"{self.base_url}/placeOrder"
+        limit_order_params  = {
+            'OrderType' : 'LIMIT',
+            'OrderSide' : order_params['orderSide'],
+            'exchangeInstrumentID' : order_params['exchangeInstrumentID'],
+            'OrderPrice' : order_params['limitPrice'],
+            'OrderQuantity' : order_params['orderQuantity'],
+            'OrderUniqueIdentifier' : order_params['orderUniqueIdentifier']
+        }
+        response = requests.post(url, json=limit_order_params)
+        if response.status_code == 200:
+            print("Order placed successfully:", response.json())
+        else:
+            print("Failed to place order:", response.json())
+        return response.json()['order']
+    
+    def modify_order(self, order_params):
+        print(f"order placed through modify order {order_params}")
+        url = f"{self.base_url}/modifyOrder"
+        if order_params['modifiedOrderQuantity']!= 0:
+            response = requests.post(url, json=order_params)
+            if response.status_code == 200:
+                print("Order placed successfully:", response.json())
+            else:
+                print("Failed to place order:", response.json())
+            return response.json()['order']
+        else:
             return None
     def get_orders(self):
         # Check if the orderbook file exists
@@ -208,21 +236,12 @@ class XTS:
         print('Retrieved master database contents')
         return df
     
-    def modify_order(self, params):
-        headers = self.headers
-        # headers.update({'Authorization': self.interactive_token})
-        # try:
-        #     payload = params
-        #     response = requests.put(self.limit_order_url, data=json.dumps(params),headers=headers)
-        #     print(response.json())
-        #     return  response.json()['result']
-
-
+    
         # except Exception as e:
         #     print(e)
         #     return None
         
-    def get_quotes(self, instruments):
+    def get_quotes_db(self, instruments):
         current_data_time = self.soc.current_data_time
         
         if not current_data_time:
@@ -287,7 +306,27 @@ class XTS:
                 connection.close()
 
 
-        
+    def get_quotes(self, instruments):
+        quotes = []
+        while not self.soc._market_data:
+            time.sleep(0.5)
+        for instrument in instruments:
+            exchange_segment = instrument['exchangeSegment']
+            exchange_instrument_id = instrument['exchangeInstrumentID']
+            for data in self.soc._market_data:
+                overall_data = data.get('OverallData', {})
+                # print(f"overall data is {overall_data}")
+                if overall_data.get('ExchangeInstrumentID') == exchange_instrument_id:
+                    quotes.append(json.dumps(overall_data))
+                    break
+                    print(f"overall data is {overall_data}")
+        # print(f"quotes is {quotes}")
+        quote_object = {
+            "type": "success",
+            "result": {"listQuotes": quotes}
+        }
+        return quote_object
+
 
 
     def place_SL_order(self, order_params):

@@ -9,7 +9,9 @@ def get_underlying_ltp(strategy_instance) -> float:
                 if strategy_instance.underlying.lower() == 'spot':
                     print('Selected underlying is spot')
                     print(strategy_instance.index_ex_id)
+                    print(f"strategy instrument is in this format {[strategy_instance.index_ex_id]}")
                     data = strategy_instance.xts.get_quotes([strategy_instance.index_ex_id])
+                    print(f"data in get_underlying_ltp is {data}")
                     if data['type'] == 'success':
                         quotes = data['result']['listQuotes']
                         quotes = json.loads(quotes[0])

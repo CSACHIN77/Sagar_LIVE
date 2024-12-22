@@ -122,7 +122,7 @@ class MDSocket_io:
         self.port = port
         self.connection_url = f'http://{self.port}'
         self.subscribed_symbols = list()
-        
+        self._market_data = None
         # Redis initialization
         self.redis_client = redis.Redis(host='localhost', port=6379, db=0)
         self.data_queue = deque()
@@ -164,6 +164,7 @@ class MDSocket_io:
         try:
             if isinstance(data['data'], list):
                 # Push the entire data list to Redis
+                self._market_data = data['data']
                 timestamp = datetime.now().timestamp()
                 data_with_timestamp = {
                     'timestamp': timestamp,
@@ -186,6 +187,7 @@ class MDSocket_io:
                     
                     # Process each instrument data in the list
                     for instrument_data in market_data:
+                        
                         overallData = instrument_data['OverallData']
                         exchangeInstrumentID = overallData['ExchangeInstrumentID']
                         if exchangeInstrumentID in self.subscribed_symbols:

@@ -81,7 +81,7 @@ class OrderSocket_io:
                 self.stoploss_app_id.append(data['AppOrderID'])
                 print("Appended stoploss order ID.")
 
-        print(f"Order received: {data}")
+        # print(f"Order received: {data}")
 
     def on_trade(self, data):
         # Parsing and logging trade data
@@ -89,7 +89,7 @@ class OrderSocket_io:
         # data = json.loads(data)
         self.trades.append(data)
         self.logger.log(data)
-        print(f"Trade received: {data}")
+        # print(f"Trade received: {data}")
         
         # Publishing trade through the publisher
         self.publisher.publish_trade(data)
