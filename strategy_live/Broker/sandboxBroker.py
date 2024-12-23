@@ -86,15 +86,15 @@ class XTS:
     def modify_order(self, order_params):
         print(f"order placed through modify order {order_params}")
         url = f"{self.base_url}/modifyOrder"
-        if order_params['modifiedOrderQuantity']!= 0:
-            response = requests.post(url, json=order_params)
-            if response.status_code == 200:
-                print("Order placed successfully:", response.json())
-            else:
-                print("Failed to place order:", response.json())
-            return response.json()['order']
+        # if order_params['modifiedOrderQuantity']!= 0:
+        response = requests.post(url, json=order_params)
+        if response.status_code == 200:
+            print("Order placed successfully:", response.json())
         else:
-            return {'type':'success'}
+            print("Failed to place order:", response.json())
+        return response.json()['order']
+        # else:
+        # return {'type':'success'}
     def get_orders(self):
         # Check if the orderbook file exists
         if os.path.exists(self.orderbook_path):

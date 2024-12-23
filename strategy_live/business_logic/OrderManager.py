@@ -45,7 +45,7 @@ async def leg_place_order(leg_instance):
                 leg_instance.strategy.logger.log(f'{leg_instance.leg_name} : {leg_instance.instrument.tradingsymbol}, order modified to market order')
            else:
                 leg_instance.strategy.logger.log(f'{leg_instance.leg_name} : {leg_instance.instrument.tradingsymbol}, order modification failed')
-           return
+        #    return
 
         latest_trade = leg_instance.trade_data[-1:][0]
         if latest_trade['OrderStatus']=='Filled':

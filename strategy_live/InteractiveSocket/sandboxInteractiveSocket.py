@@ -84,11 +84,13 @@ class OrderSocket_io:
         # print(f"Order received: {data}")
 
     def on_trade(self, data):
+        print("rupendra on trade socket update", data)
         # Parsing and logging trade data
         #notes to dev, similarly we dont need to convert it json as its already json
         # data = json.loads(data)
         self.trades.append(data)
         self.logger.log(data)
+        
         # print(f"Trade received: {data}")
         
         # Publishing trade through the publisher

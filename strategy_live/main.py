@@ -69,7 +69,7 @@ async def process_leg(leg):
     print("processing legs")
     print(f" simple momentum for {leg.leg_name} is {leg.simple_momentum}")
     leg.selection_criteria()
-    if leg.simple_momentum == False or leg.range_breakout == False:
+    if leg.simple_momentum == False and leg.range_breakout == False:
         await leg._leg_place_order()
     await leg.calculate_mtm()
   
@@ -103,11 +103,11 @@ async def run_strategy(xts, strategy_details):
         base = strategy.base #100 if strategy.index == 'NIFTY 50' else 50
         underlying_atm = get_atm(underlying_ltp, base)
 
-        leg1 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg1", strategy, publisher, 2, 'sell', 'CE', 'current',
+        leg2 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg2", strategy, publisher, 2, 'sell', 'CE', 'current',
                         {'strike_selection': 'strike', 'value': 'ATM'}, underlying_atm, roll_strike=False,
                         new_strike_selection_criteria=3, stop_loss=['points', 15], trailing_sl={"priceMove": 20, "sl_adjustment": 4}, no_of_reentry=2, 
                         simple_momentum=False, range_breakout=False)
-        leg2 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg2", strategy, publisher, 2, 'sell', 'PE', 'current',
+        leg1 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg1", strategy, publisher, 2, 'sell', 'PE', 'current',
                         {'strike_selection': 'closest_premium', 'value': 200}, underlying_atm, roll_strike=False,
                         new_strike_selection_criteria=3, stop_loss=['points', 15], trailing_sl={"priceMove": 20, "sl_adjustment": 4}, no_of_reentry=2, 
                         simple_momentum=False, range_breakout=False)
@@ -140,7 +140,7 @@ async def main():
 
     strategy_details_1 = {
         'name': 'strategy1', 'index': 'NIFTY BANK', 'underlying': 'spot', 'strategy_type': 'intraday',
-        'entry_time': "10:17", 'last_entry_time': "20:40", 'exit_time': "20:45", 'square_off': "partial",
+        'entry_time': "10:17", 'last_entry_time': "22:40", 'exit_time': "22:45", 'square_off': "partial",
         'overall_sl': 3000, 'overall_target': 4000,                   
         'trailing_for_strategy': {"type": "lock_and_trail", "profit": 2000, "lock_value": 1300, "trail_level":  200, "trail_value": 100}, 
         'implied_futures_expiry': 'current'

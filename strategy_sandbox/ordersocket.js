@@ -517,6 +517,8 @@ app.post('/placeOrder', (req, res) => {
     if (latestLTP !== undefined) {
       if (OrderSide.toUpperCase() === 'BUY') {
         // Logic for BUY orders
+        console.log("rupendra buy");
+        console.log("OrderPrice", orderParams.OrderPrice, "latestLTP", latestLTP);
         orderParams.OrderPrice = latestLTP <= orderParams.OrderPrice ? orderParams.OrderPrice : 0;
         orderParams.OrderStatus = latestLTP <= orderParams.OrderPrice ? "Filled" : "New";
         orderParams.OrderAverageTradedPrice = latestLTP;
@@ -532,12 +534,13 @@ app.post('/placeOrder', (req, res) => {
         }
       } else if (OrderSide.toUpperCase() === 'SELL') {
         // Logic for SELL orders
+        console.log("rupendra sell");
+        console.log("OrderPrice", orderParams.OrderPrice, "latestLTP", latestLTP);
         orderParams.OrderPrice = latestLTP >= orderParams.OrderPrice ? orderParams.OrderPrice : 0;
         orderParams.OrderStatus = latestLTP >= orderParams.OrderPrice ? "Filled" : "New";
         orderParams.OrderAverageTradedPrice = latestLTP;
         orderParams.LeavesQuantity = latestLTP >= orderParams.OrderPrice ? 0 : orderParams.OrderQuantity || 1;
         orderParams.CumulativeQuantity = latestLTP >= orderParams.OrderPrice ? orderParams.OrderQuantity || 1 : 0;
-
         if (latestLTP >= OrderPrice) {
           // Execute immediately if LTP is above or equal to OrderPrice
           handleImmediateOrderExecution(orderParams, latestLTP, res, "SELL");
@@ -561,9 +564,11 @@ app.post('/placeOrder', (req, res) => {
 
 // Helper functions
 function handleImmediateOrderExecution(orderParams, latestLTP, res, side) {
+  console.log("rupendra immediate order execution");
   orderParams.LastUpdateDateTime = formatDateToCustom(new Date().toISOString());
   orderbook.push(orderParams);
   saveOrderBook();
+  console.log("rupendra save orderbook");
   io.emit('orderUpdate', orderParams);
   logToFile(`Order Filled immediately via HTTP (${side}): ${JSON.stringify(orderParams)}`);
 
@@ -571,13 +576,16 @@ function handleImmediateOrderExecution(orderParams, latestLTP, res, side) {
   const tradeUpdate = prepareTradeUpdate(orderParams, latestLTP);
   tradebook.push(tradeUpdate);
   saveTradeBook();
+  console.log("rupendra save tradebook");
   io.emit('tradeUpdate', tradeUpdate);
+  console.log("rupendra trade update");
   logToFile(`Trade update emitted (${side}): ${JSON.stringify(tradeUpdate)}`);
 
   res.status(200).json({ message: `Order Filled immediately (${side})`, order: orderParams });
 }
 
 function handlePendingOrder(orderParams, res) {
+  console.log("rupendra pending getting triggered here")
   pendingOrders.push(orderParams);
   orderbook.push(orderParams);
   saveOrderBook();
@@ -627,7 +635,28 @@ function prepareTradeUpdate(orderParams, latestLTP) {
     SequenceNumber: 0
   };
 }
+function validateModifyOrderParameters(params) {
+  const requiredParams = [
+    "appOrderID",
+    "modifiedProductType",
+    "modifiedOrderType",
+    "modifiedOrderQuantity",
+    "modifiedLimitPrice",
+    "modifiedStopPrice",
+    "modifiedTimeInForce",
+    "orderUniqueIdentifier"
+  ];
+
+  // Check if all required parameters exist in the object
+  for (const param of requiredParams) {
+    if (params[param]===undefined || params[param] === null ) {
+      return false; // Missing parameter
+    }
+  }
+  return true; // All parameters are present
+}
 app.post('/modifyOrder', (req, res) => {
+  console.log("triggering modify order here");
   const {
     appOrderID,
     modifiedProductType,
@@ -639,12 +668,32 @@ app.post('/modifyOrder', (req, res) => {
     modifiedTimeInForce,
     orderUniqueIdentifier,
   } = req.body;
+  console.log("appOrderID", appOrderID);
+  console.log("modifiedProductType", modifiedProductType);
+  console.log("modifiedOrderType", modifiedOrderType);
+  console.log("modifiedOrderQuantity", modifiedOrderQuantity);
+  console.log("modifiedDisclosedQuantity", modifiedDisclosedQuantity);
+  console.log("modifiedLimitPrice", modifiedLimitPrice);
+  console.log("modifiedStopPrice", modifiedStopPrice);
+  console.log("modifiedTimeInForce", modifiedTimeInForce);
+  console.log("orderUniqueIdentifier", orderUniqueIdentifier);
 
+
+
+
+  console.log("finished")
+  
   // Validate required parameters
-  if (!appOrderID || !modifiedProductType || !modifiedOrderType || !modifiedOrderQuantity || 
-      !modifiedLimitPrice || !modifiedStopPrice || !modifiedTimeInForce || !orderUniqueIdentifier) {
-    return res.status(400).json({ message: 'Missing required parameters.' });
-  }
+  // if (!appOrderID || !modifiedProductType || !modifiedOrderType || !modifiedOrderQuantity || 
+  //     !modifiedLimitPrice || !modifiedStopPrice || !modifiedTimeInForce || !orderUniqueIdentifier) {
+  //       console.log("rupendra");
+  //   return res.status(400).json({ message: 'Missing required parameters.' });
+  // }
+  if(validateModifyOrderParameters(req.body) === false) {
+    console.log("rupendra ")
+    return res.status(400).json({ message: 'Missing required parameters.'});
+    }
+
 
   // Find the order in the order book
   const orderIndex = orderbook.findIndex(order => order.AppOrderID === appOrderID);
@@ -656,6 +705,7 @@ app.post('/modifyOrder', (req, res) => {
 
   // If order is already filled, modification is not allowed
   if (order.OrderStatus === 'Filled') {
+    console.log("we are debugging and checking if the order status is filled but trying to modify the order");
     return res.status(400).json({ message: 'Cannot modify a filled order.' });
   }
 
