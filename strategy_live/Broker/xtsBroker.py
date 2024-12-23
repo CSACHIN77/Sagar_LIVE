@@ -221,8 +221,8 @@ class XTS:
             params["orderUniqueIdentifier"]= f'{params["orderUniqueIdentifier"]}'
             payload = params
             response = requests.post(self.limit_order_url, json = payload,headers=headers)
-            print(f"limit_order response : {response.json()['result']}")
-            return  response.json()['result']
+            print(f"limit_order response : {response.json()}")
+            return  response.json()
         except Exception as e:
             print(e)
             return None
@@ -232,13 +232,14 @@ class XTS:
         try:
             # params["exchangeSegment"]="NSEFO"
             params["exchangeSegment"]="NSECM"
-            params["productType"] ="NRML"
+            params["productType"] ="CNC"
             params["orderType"]="STOPLIMIT"
             params["timeInForce"]="DAY"
             params["disclosedQuantity"]=0
             # params["orderUniqueIdentifier"]= f'sl_order_{params["exchangeInstrumentID"]}'
             payload = params
             response = requests.post(self.limit_order_url, json = payload,headers=headers)
+            print(response.json())
             return  response.json()
         except Exception as e:
             print(e)
@@ -257,8 +258,9 @@ class XTS:
             params["limitPrice"] =0
             params["stopPrice"] = 0
             payload = params
-            print(payload)
+            # print(payload)
             response = requests.post(self.limit_order_url, json = payload,headers=headers)
+            print(response.json())
             return  response.json()['result']
         except Exception as e:
             print(e)
@@ -466,7 +468,7 @@ class XTS:
         try:
             params = {"appOrderID" : AppOrderID}
             response = requests.get(url=self.limit_order_url, params = params, headers=headers)
-            print(response.json())
+            print(f"order history is {response.json()}")
             return response.json()
         except Exception as e:
             print(e)
@@ -479,13 +481,19 @@ class XTS:
         try:
             params = params
             response = requests.get(self.historical_url, params=params, headers=headers)
-            
+            data = response.json()['result']['dataReponse']
+            data = data.replace(',', '\n')
+            historical_data = pd.read_csv(StringIO(data), sep = '|', usecols=range(7), header = None, low_memory=False)
+            new_columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume', 'oi']
+            historical_data.columns = new_columns
+            historical_data['timestamp'] = pd.to_datetime(historical_data['timestamp'], unit='s')
+
             if response.status_code == 200:
-                return response.json()
+                return {'high': max(historical_data['high']), 'low': min(historical_data['low'])}
             else:
                 print("Failed to retrieve data. Status code:", response.status_code)
                 print("Response:", response.text)
-                return None
+                return {"high": None, "low": None}
         except Exception as e:
             print("Exception occurred:", e)
-            return None
+            return {"high": None, "low": None}

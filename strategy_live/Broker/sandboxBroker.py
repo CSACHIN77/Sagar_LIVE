@@ -6,6 +6,7 @@ import pandas as pd
 from dateutil.relativedelta import relativedelta
 import mysql.connector
 from creds import db_creds
+from utils import convert_end_time_format
 import time
 class XTS:
     def __init__(self, soc, base_url='http://localhost:8050'):
@@ -93,7 +94,7 @@ class XTS:
                 print("Failed to place order:", response.json())
             return response.json()['order']
         else:
-            return None
+            return {'type':'success'}
     def get_orders(self):
         # Check if the orderbook file exists
         if os.path.exists(self.orderbook_path):
@@ -458,19 +459,70 @@ class XTS:
             print(f"Error in complete_square_off: {e}")
             raise RuntimeError("Square off operation failed") from e
 
-    def get_historical_data(self, params):
-        headers = self.headers
-        # headers.update({'Authorization': self.market_token})
-        # try:
-        #     params = params
-        #     response = requests.get(self.historical_url, params=params, headers=headers)
-            
-        #     if response.status_code == 200:
-        #         return response.json()
-        #     else:
-        #         print("Failed to retrieve data. Status code:", response.status_code)
-        #         print("Response:", response.text)
-        #         return None
-        # except Exception as e:
-        #     print("Exception occurred:", e)
-        #     return None
+    def get_historical_data(self,params, db_creds=db_creds):
+        """
+        Fetches the highest and lowest LastTradedPrice within a specified time range and filters
+        based on parameters provided in the 'params' dictionary. The function dynamically constructs
+        the SQL query based on the keys present in 'params'.
+        
+        Args:
+            params (dict): Dictionary containing filtering parameters, including:
+                        - exchangeSegment (int): Exchange segment ID.
+                        - exchangeInstrumentID (int): Instrument ID.
+                        - startTime (str): Start time in the format 'Jul 13 2020 090000'.
+                        - endTime (str): End time in the format 'Jul 13 2020 153000'.
+            db_creds (dict): Dictionary containing database connection credentials:
+                        - host (str): Database host.
+                        - user (str): Database user.
+                        - password (str): Database password.
+                        - database (str): Database name.
+        
+        Returns:
+            dict: A dictionary with keys 'HighestLastTradedPrice' and 'LowestLastTradedPrice',
+                containing the highest and lowest LastTradedPrice values, respectively.
+        """
+        try:
+            formatted_end_time = convert_end_time_format(params['endTime'])
+            if not formatted_end_time:
+                return None
+            instrument_id = params['exchangeInstrumentID']
+ 
+            connection = mysql.connector.connect(
+                host=db_creds['host'],
+                user=db_creds['user'],
+                password=db_creds['password'],
+                database=db_creds['database']
+            )
+            cursor = connection.cursor(dictionary=True)
+
+            query = """
+                SELECT LastTradedPrice
+                FROM data_harvesting_20241210
+                WHERE lastupdatetime <= %s
+                AND exchangeInstrumentID = %s
+            """
+            cursor.execute(query, (formatted_end_time, instrument_id))
+            results = cursor.fetchall()
+            cursor.close()
+            connection.close()
+
+            if not results:
+                print("No data found.")
+                return None
+
+            # Extract LastTradedPrice values
+            last_traded_prices = [row['LastTradedPrice'] for row in results if row['LastTradedPrice'] is not None]
+
+            if not last_traded_prices:
+                print("No LastTradedPrice values found.")
+                return None
+
+            # Calculate highest and lowest LastTradedPrice
+            higher_range = max(last_traded_prices)
+            lower_range = min(last_traded_prices)
+            print("Highest LastTradedPrice:", higher_range, "Lowest LastTradedPrice:", lower_range)
+            return {"high": higher_range, "low": lower_range}
+
+        except mysql.connector.Error as err:
+            print("Error: ", err)
+            return {"high": None, "low": None}

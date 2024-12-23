@@ -325,21 +325,20 @@ class LegBuilder:
             print(params)
             print(f'sleeping for {timeframe} minutes')
             time.sleep(timeframe*60)
-            data= self.xts.get_historical_data(params)['result']['dataReponse']
-            data = data.replace(',', '\n')
-            historical_data = pd.read_csv(StringIO(data), sep = '|', usecols=range(7), header = None, low_memory=False)
-            new_columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume', 'oi']
-            historical_data.columns = new_columns
-            # historical_data['instrument_token'] = exchange_instrument_id
-            # historical_data['tradingsymbol'] = tradingsymbol
-            historical_data['timestamp'] = pd.to_datetime(historical_data['timestamp'], unit='s')
+            historical_data= self.xts.get_historical_data(params)#['result']['dataReponse']
+            # data = data.replace(',', '\n')
+            # historical_data = pd.read_csv(StringIO(data), sep = '|', usecols=range(7), header = None, low_memory=False)
+            # new_columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume', 'oi']
+            # historical_data.columns = new_columns
+            # # historical_data['instrument_token'] = exchange_instrument_id
+            # # historical_data['tradingsymbol'] = tradingsymbol
             print(historical_data)
             print(f"highest high is {max(historical_data['high'])}, and low is {min(historical_data['low'])}")
             if self.range_breakout['side'].lower()=='high':
-                self.entry_price = max(historical_data['high'])
+                self.entry_price = historical_data['high']
                 print(f'high of range is {self.entry_price}')
             elif self.range_breakout['side'].lower()=='low':
-                self.entry_price = min(historical_data['low'])
+                self.entry_price = historical_data['low']
                 print('low of range is {self.entry_price}')
             if self.position.lower() == 'buy':
                 limit_price = int(self.entry_price)

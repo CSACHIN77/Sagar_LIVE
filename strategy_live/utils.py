@@ -499,4 +499,67 @@ def breakout_momentum_selection_criteria(xts, strategy, range_breakout, simple_m
             return
         else:
             pass
-           
+
+
+def convert_end_time_format(end_time):
+        """Convert end_time from 'Jul 13 2020 153000' to '2014-12-10 03:48:56' format."""
+        try:
+            # Parse the provided end_time
+            parsed_time = datetime.strptime(end_time, "%b %d %Y %H%M%S")
+            # Format to match lastupdatetime format
+            return parsed_time.strftime("%Y-%m-%d %H:%M:%S")
+        except ValueError as e:
+            print("Error in time format conversion:", e)
+            return None
+        
+def get_data_from_mysql(instrument_id, end_time, db_creds):
+    try:
+        # Convert end_time to the required format
+        formatted_end_time = convert_end_time_format(end_time)
+        if not formatted_end_time:
+            print("Invalid end_time format. Exiting.")
+            return None
+
+        # Connect to the MySQL database
+        connection = mysql.connector.connect(
+            host=db_creds['host'],
+            user=db_creds['user'],
+            password=db_creds['password'],
+            database=db_creds['database']
+        )
+        cursor = connection.cursor(dictionary=True)
+
+        # Query to directly fetch LastTradedPrice
+        query = """
+            SELECT LastTradedPrice
+            FROM data_harvesting_20241210
+            WHERE lastupdatetime <= %s
+            AND exchangeInstrumentID = %s
+        """
+        print(query, formatted_end_time, instrument_id)
+        cursor.execute(query, (formatted_end_time, instrument_id))
+        results = cursor.fetchall()
+        cursor.close()
+        connection.close()
+
+        if not results:
+            print("No data found.")
+            return None
+
+        # Extract LastTradedPrice values
+        last_traded_prices = [row['LastTradedPrice'] for row in results if row['LastTradedPrice'] is not None]
+
+        if not last_traded_prices:
+            print("No LastTradedPrice values found.")
+            return None
+
+        # Calculate highest and lowest LastTradedPrice
+        highest_price = max(last_traded_prices)
+        lowest_price = min(last_traded_prices)
+        print("Highest LastTradedPrice:", highest_price, "Lowest LastTradedPrice:", lowest_price)
+        return {"HighestLastTradedPrice": highest_price, "LowestLastTradedPrice": lowest_price}
+
+    except mysql.connector.Error as err:
+        print("Error: ", err)
+        return None
+
