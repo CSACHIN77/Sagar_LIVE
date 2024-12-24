@@ -4,6 +4,7 @@ import json
 import pandas as pd
 import asyncio
 import time
+from datetime import datetime
 # from utils import Logger, update_tradebook
 class OrderSocket_io:
     def __init__(self, token, userID, port, publisher, reconnection=True, reconnection_attempts=0, reconnection_delay=1,
@@ -131,7 +132,7 @@ class OrderSocket_io:
     def on_trade(self, data):
         data= json.loads(data)
 
-        print('interactive on_trade method being called')
+        print(f'interactive on_trade method being called @ {datetime.now()}')
         # if data['OrderUniqueIdentifier'] == 'leg1':
         #     print(data)
         self.publisher.publish_trade(data)

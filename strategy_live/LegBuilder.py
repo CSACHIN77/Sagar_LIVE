@@ -136,6 +136,7 @@ class LegBuilder:
                 current_price = self.market_data[-1:][0]
                 current_price = current_price['LastTradedPrice']
                 if (self.position.lower() =='buy') and (not order_placed):
+                    print("trigger reentry logic for buy side")
                     if current_price >= self.entry_price:
                         print(f'current price {current_price} has come back to entry_price {self.entry_price}')
                         print('re-entering the trade')
@@ -189,13 +190,15 @@ class LegBuilder:
             if trade_side.upper() == 'BUY':
                 self.trade_position = 'long'
                 print('trade position is long')
-                self.sl_price = self.trade_entry_price - self.stop_loss
-                trigger_price = self.sl_price - self.trigger_tolerance
-            else: 
-                self.trade_position = 'short'
-                print('trade position is short')
                 self.sl_price = self.trade_entry_price + self.stop_loss
                 trigger_price = self.sl_price + self.trigger_tolerance
+                
+            else: 
+                self.trade_position = 'short'
+                
+                self.sl_price = self.trade_entry_price - self.stop_loss
+                trigger_price = self.sl_price - self.trigger_tolerance
+                print('trade position is short')
             orderSide = trade_side #'BUY' if trade_side.upper() == 'SELL' else 'SELL'
             orderid = f"{self.leg_name}_sl"
             print({"exchangeInstrumentID": self.instrument_id, "orderSide": orderSide,
@@ -224,8 +227,8 @@ class LegBuilder:
                     order_uid = f"{self.leg_name}_sl"
                     for order in orders[::-1]:
                         print(order)
-                        if order["orderUniqueIdentifier"] ==order_uid:
-                            app_id = order["appOrderID"]
+                        if order["OrderUniqueIdentifier"] ==order_uid:
+                            app_id = order["AppOrderID"]
                             print(f"type of app_id is {type(app_id)} {app_id}")
                             break
                     params = {
@@ -390,7 +393,7 @@ class LegBuilder:
             #                             "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
                     
         order_param = {"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
-                                      "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":self.entry_price,
+                                      "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":self.entry_price-10,
                                         "stopPrice": 0, "orderUniqueIdentifier": self.leg_name}
         self.appOrderID = execute_limit_order(self, order_param)
             
@@ -424,7 +427,7 @@ class LegBuilder:
                 current_ltp = self.market_data[-1:][0]['LastTradedPrice']
                 if self.trade_position.lower()== 'long':
                     self.pnl = round((current_ltp - self.trade_entry_price)*quantity, 2) + self.realised_pnl
-                    # await self.stoploss_trail(current_ltp, "long")
+                    await self.stoploss_trail(current_ltp, "long")
                     if self.roll_strike:
                         await self._roll_strike_handler(current_ltp, "long")
                     print(f'm2m  {self.leg_name} is {self.pnl}')

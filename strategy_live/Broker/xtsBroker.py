@@ -89,7 +89,7 @@ class XTS:
 
             instrument_details = response.json()['result']
             # print(instrument_details)
-            if exchangeSegmentList['exchangeSegmentList']==['NSECM']:
+            if exchangeSegmentList['exchangeSegmentList']==['NSEFO']:
                 iifl_instruments = pd.read_csv(StringIO(instrument_details), sep = '|', usecols=range(19), header = None, low_memory=False)
                 # new_column_names = ["ExchangeSegment","ExchangeInstrumentID","InstrumentType","Name","Description","Series","NameWithSeries","InstrumentID","PriceBand.High","PriceBand.Low","FreezeQty","TickSize","LotSize","Multiplier","UnderlyingInstrumentId","UnderlyingIndexName","ContractExpiration","StrikePrice","OptionType","DisplayName","PriceNumerator"]
                 new_column_names = [
@@ -115,7 +115,7 @@ class XTS:
                 ]
 
                 iifl_instruments.columns = new_column_names
-                iifl_instruments.to_csv('nsecm.csv')
+                iifl_instruments.to_csv('NSEFO.csv')
             elif exchangeSegmentList['exchangeSegmentList']==['NSEFO']:
                 # print('futures')
                 iifl_instruments = pd.read_csv(StringIO(instrument_details), sep = '|', usecols=range(21), header = None, low_memory=False)
@@ -213,8 +213,8 @@ class XTS:
         headers.update({'Authorization': self.interactive_token})
         try:
             # params["exchangeSegment"]="NSEFO"
-            params["exchangeSegment"]="NSECM"
-            params["productType"] ="CNC"
+            params["exchangeSegment"]="NSEFO"
+            params["productType"] ="NRML"
             params["orderType"]="LIMIT"
             params["timeInForce"]="DAY"
             params["disclosedQuantity"]=0
@@ -222,7 +222,7 @@ class XTS:
             payload = params
             response = requests.post(self.limit_order_url, json = payload,headers=headers)
             print(f"limit_order response : {response.json()}")
-            return  response.json()
+            return  response.json()['result']
         except Exception as e:
             print(e)
             return None
@@ -231,8 +231,8 @@ class XTS:
         headers.update({'Authorization': self.interactive_token})
         try:
             # params["exchangeSegment"]="NSEFO"
-            params["exchangeSegment"]="NSECM"
-            params["productType"] ="CNC"
+            params["exchangeSegment"]="NSEFO"
+            params["productType"] ="NRML"
             params["orderType"]="STOPLIMIT"
             params["timeInForce"]="DAY"
             params["disclosedQuantity"]=0
@@ -240,7 +240,7 @@ class XTS:
             payload = params
             response = requests.post(self.limit_order_url, json = payload,headers=headers)
             print(response.json())
-            return  response.json()
+            return  response.json()['result']
         except Exception as e:
             print(e)
             return None
@@ -249,8 +249,8 @@ class XTS:
         headers.update({'Authorization': self.interactive_token})
         try:
             # params["exchangeSegment"]="NSEFO"
-            params["exchangeSegment"]="NSECM"
-            params["productType"] ="CNC"
+            params["exchangeSegment"]="NSEFO"
+            params["productType"] ="NRML"
             params["orderType"]="MARKET"
             params["timeInForce"]="DAY"
             params["disclosedQuantity"]=0
@@ -273,7 +273,7 @@ class XTS:
             payload = params
             response = requests.put(self.limit_order_url, data=json.dumps(params),headers=headers)
             print(response.json())
-            return  response.json()['result']
+            return  response.json()
 
 
         except Exception as e:

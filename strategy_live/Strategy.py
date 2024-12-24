@@ -56,7 +56,8 @@ class Strategy:
         return underlying_ltp
 
     async def _calculate_overall_pnl(self, legs):
-        calculate_overall_pnl(self, legs)
+        print("calculating overall pnl")
+        await calculate_overall_pnl(self, legs)
 
     def convert_to_datetime(self, timestamp):
         today_date = datetime.now().date()

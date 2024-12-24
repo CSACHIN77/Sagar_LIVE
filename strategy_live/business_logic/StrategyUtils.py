@@ -88,7 +88,7 @@ async def calculate_overall_pnl(strategy_instance,legs) -> float:
         # trailing_for_strategy={"type": "lock", "profit": 10, "profit_lock": 5}
         while strategy_instance.exit_time > time_now: 
             strategy_instance.total_pnl = sum(leg.pnl for leg in legs)
-            # print(f'total_pnl of the strategy {strategy_instance.name} is {strategy_instance.total_pnl}')
+            print(f'total_pnl of the strategy {strategy_instance.name} is {strategy_instance.total_pnl}')
             if (strategy_instance.trailing_for_strategy) and (not strategy_instance.trail_flag):
                 # print('entering trail logic')
                 if strategy_instance.trailing_for_strategy["type"]=="lock_and_trail":

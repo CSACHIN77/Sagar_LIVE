@@ -14,7 +14,7 @@ async def leg_place_order(leg_instance):
         print('leg place order invoked')
         print('waiting for the trade data to be set')
         try:
-            await asyncio.wait_for(leg_instance.trade_data_event.wait(), timeout=5)
+            await asyncio.wait_for(leg_instance.trade_data_event.wait(), timeout=15)
             leg_instance.trade_data_event.clear()
         except asyncio.TimeoutError:
            
@@ -45,7 +45,7 @@ async def leg_place_order(leg_instance):
                 leg_instance.strategy.logger.log(f'{leg_instance.leg_name} : {leg_instance.instrument.tradingsymbol}, order modified to market order')
            else:
                 leg_instance.strategy.logger.log(f'{leg_instance.leg_name} : {leg_instance.instrument.tradingsymbol}, order modification failed')
-        #    return
+           await asyncio.sleep(10)
 
         latest_trade = leg_instance.trade_data[-1:][0]
         if latest_trade['OrderStatus']=='Filled':
