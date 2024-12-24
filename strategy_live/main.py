@@ -26,7 +26,7 @@ try:
     from common_function import fetch_parameter
 except ImportError as e:
     print(f"Error importing 'fetch_parameter': {e}")
-environment = "dev"
+environment = "sandbox"
 if environment =="dev":
     from MarketSocket.sandboxMarketSocket import MDSocket_io
     from Broker.xtsBroker import XTS
@@ -87,7 +87,7 @@ async def run_strategy(xts, strategy_details):
         print(f'sleeping for {(strategy.entry_time - time_now).total_seconds()}')
         await asyncio.sleep((strategy.entry_time - time_now).total_seconds())
 
-    underlying_ltp = strategy.get_underlying()
+    underlying_ltp = 52300 #strategy.get_underlying()
     if not underlying_ltp:
         retry_counter = 0
         while retry_counter <=3:
@@ -104,10 +104,10 @@ async def run_strategy(xts, strategy_details):
         base = strategy.base #100 if strategy.index == 'NIFTY 50' else 50
         underlying_atm = get_atm(underlying_ltp, base)
 
-        # leg2 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg2", strategy, publisher, 2, 'sell', 'CE', 'current',
-        #                 {'strike_selection': 'strike', 'value': 'ATM'}, underlying_atm, roll_strike=False,
-        #                 new_strike_selection_criteria=3, stop_loss=['points', 15], trailing_sl={"priceMove": 20, "sl_adjustment": 4}, no_of_reentry=2, 
-        #                 simple_momentum=False, range_breakout=False)
+        leg2 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg2", strategy, publisher, 2, 'sell', 'CE', 'current',
+                        {'strike_selection': 'strike', 'value': 'ATM'}, underlying_atm, roll_strike=False,
+                        new_strike_selection_criteria=3, stop_loss=['points', 15], trailing_sl={"priceMove": 20, "sl_adjustment": 4}, no_of_reentry=2, 
+                        simple_momentum=False, range_breakout=False)
         leg1 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg1", strategy, publisher, 1, 'buy', 'CE', 'current',
                         {'strike_selection': 'strike', 'value': 'ATM'}, underlying_atm, roll_strike=False,
                         new_strike_selection_criteria=3, stop_loss=['points', 7], trailing_sl={"priceMove": 6, "sl_adjustment": 2}, no_of_reentry=2, 
@@ -124,12 +124,12 @@ async def run_strategy(xts, strategy_details):
         # #                   {'strike_selection': 'strike', 'value': "ATM"}, underlying_atm, roll_strike=2,
         # #                   new_strike_selection_criteria=3, stop_loss=['points', 50], trailing_sl={"priceMove": 4, "sl_adjustment": 4}, no_of_reentry=2, 
         # #                   simple_momentum=False, range_breakout=False)
-        # legs = [leg1, leg2]
-        legs = [leg1]
+        legs = [leg1, leg2]
+        # legs = [leg1]
 
         await asyncio.gather(
             process_leg(leg1),
-            # process_leg(leg2),
+            process_leg(leg2),
             strategy._calculate_overall_pnl(legs)
         )
     else:
@@ -142,7 +142,7 @@ async def main():
     strategy_details_1 = {
         'name': 'strategy1', 'index': 'NIFTY BANK', 'underlying': 'spot', 'strategy_type': 'intraday',
         'entry_time': "09:50", 'last_entry_time': "22:40", 'exit_time': "22:45", 'square_off': "partial",
-        'overall_sl': 3000, 'overall_target': 4000,                   
+        'overall_sl': 900, 'overall_target': 1000,                   
         'trailing_for_strategy': {"type": "lock_and_trail", "profit": 2000, "lock_value": 1300, "trail_level":  200, "trail_value": 100}, 
         'implied_futures_expiry': 'current'
     }

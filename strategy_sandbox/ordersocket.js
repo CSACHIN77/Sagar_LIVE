@@ -71,97 +71,7 @@ const marketSocket = ioClient.connect('http://localhost:5001');
 // Variable to store the latest LTPs for each instrument
 const latestLTPs = {};
 
-// Listen for LTP updates from marketSocket
-// marketSocket.on('message', (data) => {
-//   try {
-//     console.log(data.data);
-//     if (data && data.data && data.data.OverallData) {
-//       const marketData = JSON.parse(data.data.OverallData);
-//       const { ExchangeInstrumentID, LastTradedPrice } = marketData;
 
-//       latestLTPs[ExchangeInstrumentID] = LastTradedPrice;
-//       // console.log(latestLTPs)
-//       pendingOrders = pendingOrders.filter(order => {
-//         if (
-//           order.exchangeInstrumentID === ExchangeInstrumentID &&
-//           // order.OrderType === 'Limit' &&
-//           order.OrderSide === 'sell' &&
-//           LastTradedPrice <= order.OrderPrice // Condition to check if price meets or goes below target
-//         ) {
-//           // If LTP has reached or is below the order price, execute the order
-//           order.OrderStatus = 'Filled';
-//           // order.OrderAverageTradedPrice = LastTradedPrice;
-//           order.OrderAverageTradedPrice = order.OrderPrice;
-//           order.LastUpdateDateTime = formatDateToCustom(new Date().toISOString());
-
-//           // Save Filled order to order book
-//           orderbook.push(order);
-//           saveOrderBook();
-
-//           // Emit the order update via WebSocket
-//           io.emit('orderUpdate', order);
-//           logToFile(`Order Filled: ${JSON.stringify(order)}`);
-
-//           // Prepare and emit trade update
-//           const tradeUpdate = {
-//             LoginID: order.LoginID || "XTS",
-//             ClientID: order.ClientID || "XTSCLI",
-//             AppOrderID: order.AppOrderID,
-//             OrderReferenceID: order.OrderReferenceID || "",
-//             GeneratedBy: order.GeneratedBy || "TWSAPI",
-//             ExchangeOrderID: `EXCHANGE${Date.now()}`, // Generate a unique exchange order ID
-//             OrderCategoryType: order.OrderCategoryType || "NORMAL",
-//             ExchangeSegment: order.ExchangeSegment || "NSECM",
-//             ExchangeInstrumentID: order.exchangeInstrumentID,
-//             OrderSide: order.OrderSide,
-//             OrderType: order.OrderType,
-//             ProductType: order.ProductType || "NRML",
-//             TimeInForce: order.TimeInForce || "DAY",
-//             OrderPrice: order.OrderPrice,
-//             OrderQuantity: order.OrderQuantity || 1,
-//             OrderStopPrice: order.OrderStopPrice || 0,
-//             OrderStatus: "Filled",
-//             OrderAverageTradedPrice: LastTradedPrice,
-//             LeavesQuantity: 0,
-//             CumulativeQuantity: order.OrderQuantity || 1,
-//             OrderDisclosedQuantity: order.OrderDisclosedQuantity || 0,
-//             OrderGeneratedDateTime: order.OrderGeneratedDateTime || formatDateToCustom(new Date().toISOString()),
-//             ExchangeTransactTimeAPI: formatDateToCustom(new Date().toISOString()),
-//             LastUpdateDateTime: order.LastUpdateDateTime,
-//             OrderUniqueIdentifier: order.OrderUniqueIdentifier || "454845",
-//             OrderLegStatus: "SingleOrderLeg",
-//             LastTradedPrice: LastTradedPrice,
-//             LastTradedQuantity: order.OrderQuantity || 1,
-//             LastExecutionTransactTime: formatDateToCustom(new Date().toISOString()),
-//             ExecutionID: `EXEC${Date.now()}`, // Unique execution ID
-//             ExecutionReportIndex: 3,
-//             IsSpread: false,
-//             MessageCode: 9005,
-//             MessageVersion: 1,
-//             TokenID: 0,
-//             ApplicationType: 0,
-//             SequenceNumber: 0
-//           };
-
-//           // Save to tradebook
-//           tradebook.push(tradeUpdate);
-//           saveTradeBook();
-
-//           // Emit trade update on tradeSocket namespace
-//           io.emit('tradeUpdate', tradeUpdate);
-//           logToFile(`Trade update emitted: ${JSON.stringify(tradeUpdate)}`);
-
-//           return false; // Remove from pending list
-//         }
-//         return true; // Keep order in pending list if not Filled
-//       });
-//     } else {
-//       logToFile(`Invalid data received from marketSocket: ${JSON.stringify(data)}`);
-//     }
-//   } catch (error) {
-//     logToFile(`Error parsing marketSocket data: ${error.message}`);
-//   }
-// });
 marketSocket.on('message', (data) => {
   try {
     // Check if data and data.data are valid and is an array
@@ -226,6 +136,7 @@ marketSocket.on('message', (data) => {
                   OrderDisclosedQuantity: order.OrderDisclosedQuantity || 0,
                   OrderGeneratedDateTime: order.OrderGeneratedDateTime || formatDateToCustom(new Date().toISOString()),
                   ExchangeTransactTimeAPI: formatDateToCustom(new Date().toISOString()),
+                  ExchangeTransactTime: formatDateToCustom(new Date().toISOString()),
                   LastUpdateDateTime: order.LastUpdateDateTime,
                   OrderUniqueIdentifier: order.OrderUniqueIdentifier || "454845",
                   OrderLegStatus: "SingleOrderLeg",
@@ -298,6 +209,7 @@ io.on('connection', (socket) => {
             CumulativeQuantity: orderParams.OrderQuantity || 1,
             OrderGeneratedDateTime: formatDateToCustom(new Date().toISOString()),
             ExchangeTransactTimeAPI: formatDateToCustom(new Date().toISOString()),
+            ExchangeTransactTime: formatDateToCustom(new Date().toISOString()),
             LastTradedPrice: latestLTP,
             LastExecutionTransactTime: formatDateToCustom(new Date().toISOString()),
             ExecutionID: `EXEC${Date.now()}`,
@@ -327,6 +239,7 @@ io.on('connection', (socket) => {
             CumulativeQuantity: 0,
             OrderGeneratedDateTime: formatDateToCustom(new Date().toISOString()),
             ExchangeTransactTimeAPI: null,
+            ExchangeTransactTime: null,
             LastTradedPrice: null,
             LastExecutionTransactTime: null,
             ExecutionID: null,
@@ -431,6 +344,7 @@ app.post('/placeMarketOrder', (req, res) => {
       OrderDisclosedQuantity: 0,
       OrderGeneratedDateTime: formatDateToCustom(new Date().toISOString()),
       ExchangeTransactTimeAPI: formatDateToCustom(new Date().toISOString()),
+      ExchangeTransactTime: formatDateToCustom(new Date().toISOString()),
       LastUpdateDateTime: formatDateToCustom(new Date().toISOString()),
       OrderUniqueIdentifier: orderUniqueIdentifier,
       OrderLegStatus: "SingleOrderLeg",
@@ -619,6 +533,7 @@ function prepareTradeUpdate(orderParams, latestLTP) {
     OrderDisclosedQuantity: orderParams.OrderDisclosedQuantity || 0,
     OrderGeneratedDateTime: orderParams.OrderGeneratedDateTime || formatDateToCustom(new Date().toISOString()),
     ExchangeTransactTimeAPI: formatDateToCustom(new Date().toISOString()),
+    ExchangeTransactTime: formatDateToCustom(new Date().toISOString()),
     LastUpdateDateTime: orderParams.LastUpdateDateTime,
     OrderUniqueIdentifier: orderParams.OrderUniqueIdentifier || "454845",
     OrderLegStatus: "SingleOrderLeg",
@@ -756,6 +671,7 @@ app.post('/modifyOrder', (req, res) => {
       OrderDisclosedQuantity: order.OrderDisclosedQuantity,
       OrderGeneratedDateTime: order.OrderGeneratedDateTime,
       ExchangeTransactTimeAPI: formatDateToCustom(new Date().toISOString()),
+      ExchangeTransactTime: formatDateToCustom(new Date().toISOString()),
       LastUpdateDateTime: order.LastUpdateDateTime,
       OrderUniqueIdentifier: orderUniqueIdentifier,
       OrderLegStatus: 'SingleOrderLeg',
@@ -784,142 +700,9 @@ app.post('/modifyOrder', (req, res) => {
 
   io.emit('orderUpdate', order);
   logToFile(`Order modified: ${JSON.stringify(order)}`);
-  res.status(200).json({ message: 'Order modified successfully.', order });
+  res.status(200).json({ type: 'sucess.', order });
 });
 
-// app.post('/placeOrder', (req, res) => {
-//   console.log("place order api is getting called");
-
-//   const orderParams = req.body;
-//   const { OrderType, OrderSide, exchangeInstrumentID, OrderPrice } = orderParams;
-//   console.log("orderParams:", orderParams)
-
-//   AppOrderID = orderParams.AppOrderID || Date.now()
-//   if (OrderType.toUpperCase() === 'LIMIT' && OrderSide.toUpperCase() === 'BUY') {
-//     const latestLTP = latestLTPs[exchangeInstrumentID];
-//     orderParams.LoginID = "XTS";
-//     orderParams.ClientID = "SYMP1";
-//     orderParams.AppOrderID = orderParams.AppOrderID || Date.now();
-//     orderParams.OrderReferenceID = orderParams.OrderReferenceID || "";
-//     orderParams.GeneratedBy = orderParams.GeneratedBy || "TWSAPI";
-//     orderParams.ExchangeOrderID = orderParams.ExchangeOrderID || `EXCHANGE${Date.now()}`;
-//     orderParams.OrderCategoryType = orderParams.OrderCategoryType || "NORMAL";
-//     orderParams.ExchangeSegment = orderParams.ExchangeSegment || "NSECM";
-//     orderParams.ExchangeInstrumentID = orderParams.exchangeInstrumentID;
-//     orderParams.OrderSide = orderParams.OrderSide;
-//     orderParams.OrderType = orderParams.OrderType;
-//     orderParams.ProductType = orderParams.ProductType || "NRML";
-//     orderParams.TimeInForce = orderParams.TimeInForce || "DAY";
-//     orderParams.OrderPrice = latestLTP <= orderParams.OrderPrice ? orderParams.OrderPrice : 0;
-//     orderParams.OrderQuantity = orderParams.OrderQuantity || 1;
-//     orderParams.OrderStopPrice = orderParams.OrderStopPrice || 0;
-//     orderParams.OrderStatus = latestLTP <= orderParams.OrderPrice ? "Filled" : "New";
-//     orderParams.OrderAverageTradedPrice = latestLTP;
-//     orderParams.LeavesQuantity = latestLTP <= orderParams.OrderPrice ? 0 : orderParams.OrderQuantity || 1;
-//     orderParams.CumulativeQuantity = latestLTP <= orderParams.OrderPrice ? orderParams.OrderQuantity || 1 : 0;
-//     orderParams.OrderDisclosedQuantity = orderParams.OrderDisclosedQuantity || 0;
-//     orderParams.OrderGeneratedDateTime = orderParams.OrderGeneratedDateTime || formatDateToCustom(new Date().toISOString());
-//     orderParams.ExchangeTransactTimeAPI = latestLTP <= orderParams.OrderPrice ? formatDateToCustom(new Date().toISOString()) : "";
-//     orderParams.LastUpdateDateTime = orderParams.LastUpdateDateTime || formatDateToCustom(new Date().toISOString());
-//     orderParams.OrderExpiryDate = orderParams.OrderExpiryDate || "01-01-1980 00:00:00";
-//     orderParams.CancelRejectReason = orderParams.CancelRejectReason || "";
-//     orderParams.OrderUniqueIdentifier = orderParams.OrderUniqueIdentifier || "454845";
-//     orderParams.OrderLegStatus = orderParams.OrderLegStatus || "SingleOrderLeg";
-//     orderParams.IsSpread = orderParams.IsSpread || false;
-//     orderParams.BoLegDetails = orderParams.BoLegDetails || 0;
-//     orderParams.BoEntryOrderId = orderParams.BoEntryOrderId || "";
-//     orderParams.MessageCode = orderParams.MessageCode || 9004;
-//     orderParams.MessageVersion = orderParams.MessageVersion || 4;
-//     orderParams.TokenID = orderParams.TokenID || 0;
-//     orderParams.ApplicationType = orderParams.ApplicationType || 0;
-//     orderParams.SequenceNumber = orderParams.SequenceNumber || 0;
-
-
-//     if (latestLTP !== undefined) {
-//       if (latestLTP <= OrderPrice) {
-//         // Execute immediately if LTP is below or equal to OrderPrice
-//         orderParams.OrderStatus = 'Filled';
-//         orderParams.OrderPrice = OrderPrice;
-//         orderParams.OrderAverageTradedPrice = latestLTP;
-//         orderParams.LastUpdateDateTime = formatDateToCustom(new Date().toISOString());
-
-//         orderbook.push(orderParams);
-//         saveOrderBook();
-//         io.emit('orderUpdate', orderParams);
-//         console.log("this placeOrder is getting called");
-//         logToFile(`Order Filled immediately via HTTP: ${JSON.stringify(orderParams)}`);
-
-//         // Prepare trade update
-//         const tradeUpdate = {
-//           LoginID: orderParams.LoginID || "XTS",
-//           ClientID: orderParams.ClientID || "XTSCLI",
-//           AppOrderID: orderParams.AppOrderID || Date.now(),
-//           OrderReferenceID: orderParams.OrderReferenceID || "",
-//           GeneratedBy: orderParams.GeneratedBy || "TWSAPI",
-//           ExchangeOrderID: `EXCHANGE${Date.now()}`, // Unique ExchangeOrderID
-//           OrderCategoryType: orderParams.OrderCategoryType || "NORMAL",
-//           ExchangeSegment: orderParams.ExchangeSegment || "NSECM",
-//           ExchangeInstrumentID: exchangeInstrumentID,
-//           OrderSide: OrderSide,
-//           OrderType: OrderType,
-//           ProductType: orderParams.ProductType || "NRML",
-//           TimeInForce: orderParams.TimeInForce || "DAY",
-//           OrderPrice: latestLTP,
-//           OrderQuantity: orderParams.OrderQuantity || 1,
-//           OrderStopPrice: orderParams.OrderStopPrice || 0,
-//           OrderStatus: "Filled",
-//           OrderAverageTradedPrice: latestLTP,
-//           LeavesQuantity: 0,
-//           CumulativeQuantity: orderParams.OrderQuantity || 1,
-//           OrderDisclosedQuantity: orderParams.OrderDisclosedQuantity || 0,
-//           OrderGeneratedDateTime: orderParams.OrderGeneratedDateTime || formatDateToCustom(new Date().toISOString()),
-//           ExchangeTransactTimeAPI: formatDateToCustom(new Date().toISOString()),
-//           LastUpdateDateTime: orderParams.LastUpdateDateTime,
-//           OrderUniqueIdentifier: orderParams.OrderUniqueIdentifier || "454845",
-//           OrderLegStatus: "SingleOrderLeg",
-//           LastTradedPrice: latestLTP,
-//           LastTradedQuantity: orderParams.OrderQuantity || 1,
-//           LastExecutionTransactTime: formatDateToCustom(new Date().toISOString()),
-//           ExecutionID: `EXEC${Date.now()}`, // Unique Execution ID
-//           ExecutionReportIndex: 3,
-//           IsSpread: false,
-//           MessageCode: 9005,
-//           MessageVersion: 1,
-//           TokenID: 0,
-//           ApplicationType: 0,
-//           SequenceNumber: 0
-//         };
-
-//         // Save to tradebook
-//         tradebook.push(tradeUpdate);
-//         saveTradeBook();
-
-//         // Emit trade update on tradeSocket namespace
-//         io.emit('tradeUpdate', tradeUpdate);
-//         console.log("trades updated")
-//         logToFile(`Trade update emitted: ${JSON.stringify(tradeUpdate)}`);
-
-//         res.status(200).json({ message: 'Order Filled immediately', order: orderParams });
-//       } else {
-//         // Set order to pending if LTP is above OrderPrice
-//         orderParams.OrderStatus = 'New';
-//         pendingOrders.push(orderParams);
-
-//         orderbook.push(orderParams);
-//         saveOrderBook();
-//         io.emit('orderUpdate', orderParams);
-//         res.status(200).json({ message: 'Order placed, waiting for market conditions.', order: orderParams });
-//         logToFile(`Order pending via HTTP: ${JSON.stringify(orderParams)}`);
-//       }
-//     } else {
-//       res.status(400).json({ message: 'No LTP available for the given instrument ID.' });
-//       logToFile(`No LTP available for instrument ID ${exchangeInstrumentID}`);
-//     }
-//   } else {
-//     res.status(400).json({ message: 'Only BUY Limit orders are supported.' });
-//     logToFile(`Invalid order type or side: ${JSON.stringify(orderParams)}`);
-//   }
-// });
 
 
 app.get('/orders', (req, res) => {

@@ -92,7 +92,7 @@ class XTS:
             print("Order placed successfully:", response.json())
         else:
             print("Failed to place order:", response.json())
-        return response.json()['order']
+        return response.json()#['order']
         # else:
         # return {'type':'success'}
     def get_orders(self):
@@ -344,7 +344,7 @@ class XTS:
             response = requests.post(url, json=order_params)
             
             if response.status_code == 200:
-                order_response = response.json()
+                order_response = response.json()['order']
                 print(f"Stop-Limit order placed successfully: {order_response}")
                 return {
                     "type": "success",
@@ -409,7 +409,7 @@ class XTS:
         try:
             orderbook = self.read_orderbook(orderbook_path)
             orderbook_df = pd.DataFrame(orderbook)
-
+            orderbook_df.to_csv("testOrderbook.csv", index=False)
             pending_orders = orderbook_df[(orderbook_df['OrderStatus'] == 'New') & 
                                         (orderbook_df['OrderUniqueIdentifier'].str.startswith(leg.leg_name))]
             if not pending_orders.empty:

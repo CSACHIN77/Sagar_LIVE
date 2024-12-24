@@ -1,0 +1,241 @@
+strategy1leg1 : NIFTY24DEC23700PE, entry_price before placing order is 53.1
+strategy1leg1 : BANKNIFTY24DEC53400CE, entry_price before placing order is 2.85
+strategy1leg1 : BANKNIFTY24DEC53300CE, entry_price before placing order is 2.8
+strategy1leg1 : BANKNIFTY24DEC53300CE, entry_price before placing order is 3.05
+strategy1leg1 : BANKNIFTY24DEC53300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC53300CE, order filled 3.05
+strategy1leg1 : BANKNIFTY24DEC53300CE, SL order placed with limit price -11.95
+Underlying LTP: 51279.2, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300CE, entry_price before placing order is 64.65
+strategy1leg1 : BANKNIFTY24DEC51300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300CE, order filled 64.65
+strategy1leg1 : BANKNIFTY24DEC51300CE, SL order placed with limit price 48.65
+Underlying LTP: 51219.65, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51200CE, entry_price before placing order is 59.6
+strategy1leg1 : BANKNIFTY24DEC51200CE market order placed
+Underlying LTP: 51224.3, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51200CE, entry_price before placing order is 62.95
+strategy1leg1 : BANKNIFTY24DEC51200CE market order placed
+Underlying LTP: 51256.8, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300CE, entry_price before placing order is 35.15
+strategy1leg1 : BANKNIFTY24DEC51300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300CE, order modified to market order
+Underlying LTP: 51265, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300CE, entry_price before placing order is 36.9
+strategy1leg1 : BANKNIFTY24DEC51300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300CE, order modified to market order
+Underlying LTP: 51271.85, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300CE, entry_price before placing order is 36.0
+strategy1leg1 : BANKNIFTY24DEC51300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300CE, order modified to market order
+Underlying LTP: 51268.35, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300CE, entry_price before placing order is 37.3
+strategy1leg1 : BANKNIFTY24DEC51300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300CE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51300CE, order filled 37.3
+strategy1leg1 : BANKNIFTY24DEC51300CE, SL order placed with limit price 20.75
+Underlying LTP: 51243.55, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51100CE, entry_price before placing order is 149.0
+strategy1leg1 : BANKNIFTY24DEC51100CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51100CE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51100CE, order filled 149.0
+strategy1leg1 : BANKNIFTY24DEC51100CE, SL order placed with limit price 136.75
+Underlying LTP: 51203.1, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51100CE, entry_price before placing order is 128.7
+strategy1leg1 : BANKNIFTY24DEC51100CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51100CE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51100CE, order filled 128.7
+strategy1leg1 : BANKNIFTY24DEC51100CE, SL order placed with limit price 126.6
+strategy1leg1 : BANKNIFTY24DEC51100CE, Re-entry, buy order placed at 128.7
+Underlying LTP: 51219.4, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51100CE, entry_price before placing order is 136.7
+strategy1leg1 : BANKNIFTY24DEC51100CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51100CE, order modified to market order
+Underlying LTP: 51225, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51100CE, entry_price before placing order is 141.65
+strategy1leg1 : BANKNIFTY24DEC51100CE market order placed
+Underlying LTP: 51220.35, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51200CE, entry_price before placing order is 58.0
+strategy1leg1 : BANKNIFTY24DEC51200CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51200CE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51200CE, order filled 58.0
+strategy1leg1 : BANKNIFTY24DEC51200CE, SL order placed with limit price 51.45
+strategy1leg1 : BANKNIFTY24DEC51200CE, Re-entry, buy order placed at 58.0
+Underlying LTP: 51289.9, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300CE, entry_price before placing order is 42.85
+strategy1leg1 : BANKNIFTY24DEC51300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300CE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51300CE, order filled 42.85
+strategy1leg1 : BANKNIFTY24DEC51300CE, SL order placed with limit price 36.0
+Underlying LTP: 51241.55, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51200CE, entry_price before placing order is 76.7
+strategy1leg1 : BANKNIFTY24DEC51200CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51200CE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51200CE, order filled 76.7
+strategy1leg1 : BANKNIFTY24DEC51200CE, SL order placed with limit price 70.15
+Underlying LTP: 51224, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51100CE, entry_price before placing order is 150.85
+strategy1leg1 : BANKNIFTY24DEC51100CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51100CE, order modified to market order
+Underlying LTP: 51199.95, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51100CE, entry_price before placing order is 137.75
+strategy1leg1 : BANKNIFTY24DEC51100CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51100CE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51100CE, order filled 137.75
+strategy1leg1 : BANKNIFTY24DEC51100CE, SL order placed with limit price 120.6
+Underlying LTP: 51183.7, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51200CE, entry_price before placing order is 39.1
+strategy1leg1 : BANKNIFTY24DEC51200CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51200CE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51200CE, order filled 39.1
+strategy1leg1 : BANKNIFTY24DEC51200CE, SL order placed with limit price 26.4
+Underlying LTP: 51172.35, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51200PE, entry_price before placing order is 24.35
+strategy1leg1 : BANKNIFTY24DEC51200PE market order placed
+strategy1leg1 : BANKNIFTY24DEC51200PE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51200PE, order filled 24.35
+strategy1leg1 : BANKNIFTY24DEC51200PE, SL order placed with limit price 7.25
+Underlying LTP: 51194.95, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51200PE, entry_price before placing order is 13.7
+strategy1leg1 : BANKNIFTY24DEC51200PE market order placed
+strategy1leg1 : BANKNIFTY24DEC51200PE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51200PE, order filled 13.7
+strategy1leg1 : BANKNIFTY24DEC51200PE, SL order placed with limit price 1.1999999999999993
+Underlying LTP: 51210.45, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300PE, entry_price before placing order is 64.1
+strategy1leg1 : BANKNIFTY24DEC51300PE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300PE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51300PE, order filled 64.1
+strategy1leg1 : BANKNIFTY24DEC51300PE, SL order placed with limit price 55.15
+strategy1leg1 : BANKNIFTY24DEC51300PE, Re-entry, buy order placed at 64.1
+strategy1leg1 : BANKNIFTY24DEC51300PE, Re-entry SL Buy order placed at 71.95
+Underlying LTP: 51199.8, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300PE, entry_price before placing order is 69.5
+strategy1leg1 : BANKNIFTY24DEC51300PE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300PE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51300PE, order filled 69.5
+strategy1leg1 : BANKNIFTY24DEC51300PE, SL order placed with limit price 65.0
+Underlying LTP: 51201.35, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300PE, entry_price before placing order is 70.1
+strategy1leg1 : BANKNIFTY24DEC51300PE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300PE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51300PE, order filled 70.1
+strategy1leg1 : BANKNIFTY24DEC51300PE, SL order placed with limit price 60.849999999999994
+Underlying LTP: 51191.9, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300PE, entry_price before placing order is 78.8
+strategy1leg1 : BANKNIFTY24DEC51300PE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300PE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51300PE, order filled 78.8
+strategy1leg1 : BANKNIFTY24DEC51300PE, SL order placed with limit price 77.7
+strategy1leg1 : BANKNIFTY24DEC51300PE, Re-entry, buy order placed at 78.8
+strategy1leg1 : BANKNIFTY24DEC51300PE, Re-entry SL Buy order placed at 85.95
+Underlying LTP: 51194.75, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300PE, entry_price before placing order is 76.7
+strategy1leg1 : BANKNIFTY24DEC51300PE market order placed
+Underlying LTP: 51206.4, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51300PE, entry_price before placing order is 71.4
+strategy1leg1 : BANKNIFTY24DEC51300PE market order placed
+strategy1leg1 : BANKNIFTY24DEC51300PE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51300PE, order filled 71.4
+strategy1leg1 : BANKNIFTY24DEC51300PE, SL order placed with limit price 62.349999999999994
+Underlying LTP: 51219.75, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51100CE, entry_price before placing order is 140.7
+strategy1leg1 : BANKNIFTY24DEC51100CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51100CE, order modification failed
+Underlying LTP: 51225.9, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51200CE, entry_price before placing order is 37.95
+strategy1leg1 : BANKNIFTY24DEC51200CE market order placed
+strategy1leg1 : BANKNIFTY24DEC51200CE, order modified to market order
+strategy1leg1 : BANKNIFTY24DEC51200CE, order filled 37.95
+strategy1leg1 : BANKNIFTY24DEC51200CE, SL order placed with limit price 27.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1489.7
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1476.75
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1516.5
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1529.7
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order modification failed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order filled 1529.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1522.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1528.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1532.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1536.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1538.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1568.0
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order modification failed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order filled 1568.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1561.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1569.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1573.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1490.7
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order modification failed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order filled 1490.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1478.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1482.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1490.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, Re-entry, buy order placed at 1490.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1607.7
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order modification failed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order filled 1607.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1600.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, Re-entry, buy order placed at 1607.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1490.7
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg2 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1490.7
+strategy1leg2 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg2 : BANKNIFTY24DEC52300CE, order filled 1490.7
+strategy1leg2 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1505.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, order modification failed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order filled 1490.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1478.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1482.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1490.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1492.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, Re-entry, buy order placed at 1490.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1490.7
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg2 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1490.7
+strategy1leg2 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg2 : BANKNIFTY24DEC52300CE, order filled 1490.7
+strategy1leg2 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1505.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, order modification failed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order filled 1490.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1478.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1482.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1490.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1492.75
+strategy1leg1 : BANKNIFTY24DEC52300CE, Re-entry, buy order placed at 1490.7
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1491.15
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg2 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1491.15
+strategy1leg2 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg2 : BANKNIFTY24DEC52300CE, order filled 1491.15
+strategy1leg2 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1506.15
+strategy1leg1 : BANKNIFTY24DEC52300CE, order modification failed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order filled 1491.15
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1484.15
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1488.15
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1492.15
+strategy1leg1 : BANKNIFTY24DEC52300CE, Re-entry, buy order placed at 1491.15
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1494.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1580.0
+strategy1leg1 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg2 : BANKNIFTY24DEC52300CE, entry_price before placing order is 1580.0
+strategy1leg2 : BANKNIFTY24DEC52300CE market order placed
+strategy1leg2 : BANKNIFTY24DEC52300CE, order filled 1580.0
+strategy1leg2 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1595.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, order modification failed
+strategy1leg1 : BANKNIFTY24DEC52300CE, order filled 1580.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL order placed with limit price 1573.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1579.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1581.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1583.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1587.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1589.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, SL updated to 1591.0
+strategy1leg1 : BANKNIFTY24DEC52300CE, Re-entry, buy order placed at 1580.0
