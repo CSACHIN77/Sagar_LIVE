@@ -136,7 +136,7 @@ class LegBuilder:
                 current_price = self.market_data[-1:][0]
                 current_price = current_price['LastTradedPrice']
                 if (self.position.lower() =='buy') and (not order_placed):
-                    print("trigger reentry logic for buy side")
+                    # print("trigger reentry logic for buy side")
                     if current_price >= self.entry_price:
                         print(f'current price {current_price} has come back to entry_price {self.entry_price}')
                         print('re-entering the trade')

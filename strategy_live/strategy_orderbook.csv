@@ -1,0 +1,16 @@
+OrderType,OrderSide,exchangeInstrumentID,OrderPrice,OrderQuantity,OrderUniqueIdentifier,LoginID,ClientID,AppOrderID,OrderReferenceID,GeneratedBy,ExchangeOrderID,OrderCategoryType,ExchangeSegment,ExchangeInstrumentID,ProductType,TimeInForce,OrderStopPrice,OrderDisclosedQuantity,OrderGeneratedDateTime,LastUpdateDateTime,OrderExpiryDate,CancelRejectReason,OrderLegStatus,IsSpread,BoLegDetails,BoEntryOrderId,MessageCode,MessageVersion,TokenID,ApplicationType,SequenceNumber,OrderStatus,OrderAverageTradedPrice,LeavesQuantity,CumulativeQuantity,exchangeSegment,productType,orderType,timeInForce,disclosedQuantity,limitPrice,stopPrice
+MARKET,buy,43768,0.0,15,strategy1leg1,XTS,SYMP1,1735113057221,,TWSAPI,EXCHANGE1735113057221,NORMAL,NSECM,43768.0,NRML,DAY,0.0,0.0,25-12-2024 13:20:57,25-12-2024 13:21:12,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,454.25,0.0,15.0,,,,,,,
+LIMIT,sell,43768,454.7,30,strategy1leg2,XTS,SYMP1,1735113057234,,TWSAPI,EXCHANGE1735113057234,NORMAL,NSECM,43768.0,NRML,DAY,0.0,0.0,25-12-2024 13:20:57,25-12-2024 13:20:57,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,464.7,0.0,30.0,,,,,,,
+STOPLIMIT,BUY,43768,477.7,30,strategy1leg2_sl,,,APP1735113060275,,,,,,,NRML,DAY,475.7,0.0,25-12-2024 13:21:00,25-12-2024 13:22:35,,,,,,,,,,,,New,,,,,,,,,,
+StopLimit,SELL,43768,445.25,15,strategy1leg1_sl,,,APP1735113082260,,,,,,,,,447.25,,25-12-2024 13:21:22,25-12-2024 13:22:33,,,,,,,,,,,,Filled,445.25,,,,,,,,,
+StopLimit,SELL,43768,445.25,15,strategy1leg1_sl,,,APP1735113082260,,,,,,,,,447.25,,25-12-2024 13:21:22,25-12-2024 13:22:33,,,,,,,,,,,,Filled,445.25,,,,,,,,,
+,SELL,43768,434.9,15,strategy1leg1_squareoff,,,APP1735113157053,,,,,,,,,,,,25-12-2024 13:22:37,,,,,,,,,,,,Filled,434.9,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,43768,433.25,15,strategy1leg1_squareoff,,,APP1735113157271,,,,,,,,,,,,25-12-2024 13:22:37,,,,,,,,,,,,Filled,433.25,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,43768,433.25,15,strategy1leg1_squareoff,,,APP1735113157555,,,,,,,,,,,,25-12-2024 13:22:37,,,,,,,,,,,,Filled,433.25,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,43768,434.95,30,strategy1leg2_squareoff,,,APP1735113162686,,,,,,,,,,,,25-12-2024 13:22:42,,,,,,,,,,,,Filled,434.95,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,43768,430.75,15,strategy1leg1_squareoff,,,APP1735113167551,,,,,,,,,,,,25-12-2024 13:22:47,,,,,,,,,,,,Filled,430.75,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,43768,430.75,15,strategy1leg1_squareoff,,,APP1735113167793,,,,,,,,,,,,25-12-2024 13:22:47,,,,,,,,,,,,Filled,430.75,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,43768,430.75,15,strategy1leg1_squareoff,,,APP1735113167938,,,,,,,,,,,,25-12-2024 13:22:47,,,,,,,,,,,,Filled,430.75,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,43768,430.75,15,strategy1leg1_squareoff,,,APP1735113168367,,,,,,,,,,,,25-12-2024 13:22:48,,,,,,,,,,,,Filled,430.75,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,43768,431.85,15,strategy1leg1_squareoff,,,APP1735113168836,,,,,,,,,,,,25-12-2024 13:22:48,,,,,,,,,,,,Filled,431.85,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,43768,431.85,15,strategy1leg1_squareoff,,,APP1735113169105,,,,,,,,,,,,25-12-2024 13:22:49,,,,,,,,,,,,Filled,431.85,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0

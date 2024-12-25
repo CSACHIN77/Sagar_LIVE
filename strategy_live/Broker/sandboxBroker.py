@@ -344,7 +344,7 @@ class XTS:
             response = requests.post(url, json=order_params)
             
             if response.status_code == 200:
-                order_response = response.json()['order']
+                order_response = response.json()['result']
                 print(f"Stop-Limit order placed successfully: {order_response}")
                 return {
                     "type": "success",
@@ -405,20 +405,81 @@ class XTS:
         except Exception as e:
             print(f"Error while canceling order with AppOrderID {app_order_id}: {e}")
 
-    def complete_square_off(self, leg, orderbook_path="orderbook.json", tradebook_path="tradebook.json"):
+    # def complete_square_off(self, leg, orderbook_path="orderbook.json", tradebook_path="tradebook.json"):
+    #     try:
+    #         orderbook = self.read_orderbook(orderbook_path)
+    #         orderbook_df = pd.DataFrame(orderbook)
+    #         orderbook_df.to_csv("testOrderbook.csv", index=False)
+    #         pending_orders = orderbook_df[(orderbook_df['OrderStatus'] == 'New') & 
+    #                                     (orderbook_df['OrderUniqueIdentifier'].str.startswith(leg.leg_name))]
+    #         if not pending_orders.empty:
+    #             app_order_ids = list(set(pending_orders['AppOrderID']))
+    #             for app_order in app_order_ids:
+    #                 self.cancel_order(app_order)
+
+    #         filled_orders = orderbook_df[(orderbook_df['OrderStatus'] == 'Filled') & 
+    #                                     (orderbook_df['OrderUniqueIdentifier'].str.startswith(leg.leg_name))]
+
+    #         if not filled_orders.empty:
+    #             for idx, row in filled_orders.iterrows():
+    #                 instrument_id = row['exchangeInstrumentID']
+    #                 order_side = 'BUY' if row['OrderSide'] == 'SELL' else 'SELL'
+    #                 order_quantity = row['OrderQuantity']
+
+    #                 order_unique_identifier = f"{leg.leg_name}_squareoff"
+    #                 market_order_details = {
+    #                     "exchangeInstrumentID": int(instrument_id),
+    #                     "orderSide": order_side,
+    #                     "orderQuantity": int(order_quantity),
+    #                     "limitPrice": 0,
+    #                     "stopPrice": 0,
+    #                     "orderUniqueIdentifier": order_unique_identifier
+    #                 }
+
+    #                 status = self.place_market_order(market_order_details)
+    #                 print(f"Market order status: {status}")
+
+    #         time.sleep(2)
+    #         orderbook_df.to_csv('strategy_orderbook.csv', index=False)
+
+    #         if os.path.exists(tradebook_path):
+    #             with open(tradebook_path, 'r') as f:
+    #                 tradebook = json.load(f)
+    #             time.sleep(2)
+    #             tradebook_df = pd.DataFrame(tradebook)
+    #             tradebook_df.drop_duplicates(inplace=True)
+    #             tradebook_df.to_csv('strategy_tradebook.csv', index=False)
+    #         else:
+    #             print(f"Tradebook file not found: {tradebook_path}")
+
+    #         print("All operations completed. Returning control.")
+    #         return "completed"
+
+    #     except Exception as e:
+    #         print(f"Error in complete_square_off: {e}")
+    #         raise RuntimeError("Square off operation failed") from e
+    def complete_square_off(self, leg, orderbook_path="../../strategy_sandbox/orderbook.json", tradebook_path="../../strategy_sandbox/tradebook.json"):
         try:
+            orderbook_path = os.path.abspath(os.path.join(os.path.dirname(__file__), orderbook_path))
+            tradebook_path = os.path.abspath(os.path.join(os.path.dirname(__file__), tradebook_path))
+            print(orderbook_path)
+            # Read the orderbook
             orderbook = self.read_orderbook(orderbook_path)
             orderbook_df = pd.DataFrame(orderbook)
-            orderbook_df.to_csv("testOrderbook.csv", index=False)
+            # orderbook_df.to_csv("testOrderbook.csv", index=False)
+            print(f"orderbook is {orderbook_df}")
+
+            # Cancel pending orders
             pending_orders = orderbook_df[(orderbook_df['OrderStatus'] == 'New') & 
-                                        (orderbook_df['OrderUniqueIdentifier'].str.startswith(leg.leg_name))]
+                                          (orderbook_df['OrderUniqueIdentifier'].str.startswith(leg.leg_name))]
             if not pending_orders.empty:
                 app_order_ids = list(set(pending_orders['AppOrderID']))
                 for app_order in app_order_ids:
-                    self.cancel_order(app_order)
+                    self.cancel_order(app_order, orderbook_path)
 
+            # Place market orders to square off filled positions
             filled_orders = orderbook_df[(orderbook_df['OrderStatus'] == 'Filled') & 
-                                        (orderbook_df['OrderUniqueIdentifier'].str.startswith(leg.leg_name))]
+                                         (orderbook_df['OrderUniqueIdentifier'].str.startswith(leg.leg_name))]
 
             if not filled_orders.empty:
                 for idx, row in filled_orders.iterrows():
@@ -442,6 +503,7 @@ class XTS:
             time.sleep(2)
             orderbook_df.to_csv('strategy_orderbook.csv', index=False)
 
+            # Handle the tradebook
             if os.path.exists(tradebook_path):
                 with open(tradebook_path, 'r') as f:
                     tradebook = json.load(f)
@@ -458,7 +520,6 @@ class XTS:
         except Exception as e:
             print(f"Error in complete_square_off: {e}")
             raise RuntimeError("Square off operation failed") from e
-
     def get_historical_data(self,params, db_creds=db_creds):
         """
         Fetches the highest and lowest LastTradedPrice within a specified time range and filters
