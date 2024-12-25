@@ -1,0 +1,24 @@
+Underlying LTP: 51126.6, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51100CE, entry_price before placing order is 480.8
+strategy1leg1 : BANKNIFTY24DEC51100CE market order placed
+strategy1leg2 : BANKNIFTY24DEC51100CE, entry_price before placing order is 480.8
+strategy1leg2 : BANKNIFTY24DEC51100CE market order placed
+strategy1leg2 : BANKNIFTY24DEC51100CE, order filled 480.8
+strategy1leg2 : BANKNIFTY24DEC51100CE, SL order placed with limit price 495.55
+strategy1leg1 : BANKNIFTY24DEC51100CE, order modification failed
+strategy1leg1 : BANKNIFTY24DEC51100CE, order filled 480.8
+strategy1leg1 : BANKNIFTY24DEC51100CE, SL order placed with limit price 469.0
+strategy1leg1 : BANKNIFTY24DEC51100CE, SL updated to 471.0
+strategy1leg1 : BANKNIFTY24DEC51100CE, Re-entry, buy order placed at 480.8
+squaring off everything, as SL got hit
+squaring off because time is over
+Underlying LTP: 51158.1, Underlying: spot
+strategy1leg1 : BANKNIFTY24DEC51200CE, entry_price before placing order is 429.0
+strategy1leg1 : BANKNIFTY24DEC51200CE market order placed
+strategy1leg2 : BANKNIFTY24DEC51200CE, entry_price before placing order is 429.0
+strategy1leg2 : BANKNIFTY24DEC51200CE market order placed
+strategy1leg2 : BANKNIFTY24DEC51200CE, order filled 429.0
+strategy1leg2 : BANKNIFTY24DEC51200CE, SL order placed with limit price 440.0
+strategy1leg1 : BANKNIFTY24DEC51200CE, order modification failed
+squaring off everything, as SL got hit
+squaring off because time is over

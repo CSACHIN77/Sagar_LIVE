@@ -181,7 +181,7 @@ class LegBuilder:
                 entry_timestmap = latest_trade['ExchangeTransactTime']
                 entry_slippage = self.trade_entry_price - self.entry_price
                 trade = {'symbol': self.instrument_id, 'entry_price': self.entry_price, 'trade_price': self.trade_entry_price,  'trade' : trade_side, 'quantity' : traded_quantity, 'timestamp': entry_timestmap, 'entry_slippage': round((self.entry_price - self.trade_entry_price), 2)}
-                # print(f'instrument traded at avg price of {self.trade_entry_price}, side {trade_side},\n with quantity {traded_quantity} and executed at  {entry_timestmap} and slippage is {entry_slippage}')
+                print(f'instrument traded at avg price of {self.trade_entry_price}, side {trade_side},\n with quantity {traded_quantity} and executed at  {entry_timestmap} and slippage is {entry_slippage}')
                 # print(trade)
             # print(f'placing SL order now for {self.leg_name} SL points {self.stop_loss}')
             # if self.stop_loss[0].lower()=='points':
