@@ -9,11 +9,12 @@ from io import StringIO
 from datetime import datetime, timedelta
 import asyncio
 from business_logic.OrderManager import execute_limit_order, roll_strike_handler
-from utils import Logger, slice_orders, get_rolling_strike
+from utils import slice_orders, get_rolling_strike, get_path
+from Logger.MyLogger import Logger
 # from utils import update_tradebook
 import os
 import sys
-sys.path.append(os.path.abspath('../../Sagar_common'))
+sys.path.append(get_path("Sagar_common"))
 from business_logic.OrderManager import leg_place_order
 try:
     from common_function import fetch_parameter

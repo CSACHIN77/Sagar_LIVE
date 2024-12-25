@@ -3,7 +3,7 @@ import re
 import json
 import pandas as pd
 from business_logic.OrderManager import stoploss_trail
-from utils import get_atm, apply_strike_selection_criteria, apply_closest_premium_selection_criteria,apply_straddle_width_selection_criteria
+from utils import get_atm, get_path, apply_strike_selection_criteria, apply_closest_premium_selection_criteria,apply_straddle_width_selection_criteria
 import time
 from io import StringIO
 from datetime import datetime, timedelta
@@ -12,7 +12,8 @@ from utils import Logger, update_tradebook, slice_orders, get_rolling_strike
 import os
 import sys
 from Leg.LegUtil import *
-sys.path.append(os.path.abspath('Sagar_common'))
+
+sys.path.append(get_path("Sagar_common"))
 
 try:
     from common_function import fetch_parameter
