@@ -2,7 +2,8 @@ import socketio
 import threading
 import json
 import time
-from utils import Logger, update_tradebook
+from utils import update_tradebook
+from Logger.MyLogger import Logger
 
 class OrderSocket_io:
     def __init__(self, port, publisher, reconnection=True, reconnection_attempts=0,

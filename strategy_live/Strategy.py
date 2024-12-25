@@ -2,14 +2,15 @@ import json
 from datetime import datetime
 from typing import List, Dict, Any
 import pandas as pd
-from utils import get_atm, filter_dataframe, report_generator, get_base, Logger
+from utils import get_atm, filter_dataframe, report_generator, get_base, get_path
+from Logger.MyLogger import Logger
 from business_logic.StrategyUtils import *
 import asyncio
 import sys
 import os
 from business_logic.StrategyUtils import *
 
-sys.path.append(os.path.abspath('../../Sagar_common'))
+sys.path.append(get_path("Sagar_common"))
 
 try:
     from common_function import fetch_parameter

@@ -100,7 +100,7 @@ import threading
 import socketio
 import json
 from datetime import datetime
-from utils import Logger
+from Logger.MyLogger import Logger
 import time
 from Publisher import Publisher
 import redis

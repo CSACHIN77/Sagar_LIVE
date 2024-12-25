@@ -6,7 +6,8 @@ from datetime import datetime
 
 import os
 import sys
-from utils import get_atm, create_tradebook_table, broker_login, initialize_sockets
+from utils import get_atm, create_tradebook_table, broker_login, initialize_sockets, get_path
+from Logger.MyLogger import Logger
 from Publisher import Publisher
 import time
 publisher = Publisher()
@@ -18,7 +19,7 @@ from pathlib import Path
 warnings.filterwarnings("ignore")
 port = "https://ttblaze.iifl.com"
 
-sys.path.append(os.path.abspath('../../Sagar_common'))
+sys.path.append(get_path("Sagar_common"))
 
 # Add the parent directory (Sagar_LIVE) to the Python path
 
@@ -27,6 +28,9 @@ try:
 except ImportError as e:
     print(f"Error importing 'fetch_parameter': {e}")
 environment = "sandbox"
+
+Logger.print("Test")
+
 if environment =="dev":
     from MarketSocket.sandboxMarketSocket import MDSocket_io
     from Broker.xtsBroker import XTS

@@ -110,22 +110,6 @@ def filter_dataframe(df, instruments):
 
     return filtered_data, monthly_expiry_list
 
-class Logger:
-    def __init__(self, filename):
-        self.filename = filename
-
-    def log(self, message, current_data_time=""):
-        if environment.lower() == 'dev':
-            # print(message)
-            """Append a message with a timestamp to the log file."""
-            with open(self.filename, 'a') as file:
-                # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                if current_data_time == "": 
-                    file.write(f"{message}\n")
-                else:
-                    file.write(f"{current_data_time}: {message}\n")
-
-
 def find_keys_by_value(d, target_value):
     keys = [key for key, value in d.items() if value == target_value]
     return keys
@@ -566,3 +550,9 @@ def get_data_from_mysql(instrument_id, end_time, db_creds):
         print("Error: ", err)
         return None
 
+def get_path(target_folder):
+    current_file_path = os.path.abspath(__file__)
+    if target_folder.lower() == "sagar_common":
+        return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(current_file_path))), target_folder)
+    return target_folder
+    
