@@ -302,8 +302,9 @@ class LegBuilder:
             print(f"selected option is {self.option_symbol}")
         elif choice.lower() in ['straddle_width', 'atm_pct', 'atm_straddle_premium']:
             self.option_symbol, self.lot_size, self.instrument_id = apply_straddle_width_selection_criteria(self.xts, choice, choice_value, self.combined_expiry_df, self.strike, self.expiry_df, self.base)
-            print(self.option_symbol)
+        print(f"selection criteria is {self.option_symbol} {self.instrument_id}")
         self.xts.subscribe_symbols([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}])
+        time.sleep(10) #delete it, just for testing for sandbox
         response = self.xts.get_quotes([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}])
         ltp_data = response['result']['listQuotes']
         print(f"testing ltp data is {ltp_data}")

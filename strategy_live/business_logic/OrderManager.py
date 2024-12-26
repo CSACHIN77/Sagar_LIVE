@@ -90,17 +90,17 @@ async def roll_strike_handler(leg_instance, ltp, position):
             sign = 1 if position == "long" else -1
             price_diff = sign * current_roll_pnl
             
-            if price_diff > float(leg_instance.roll_strike["roll_strike_value"]):
-                print(f'price_diff is greater than {leg_instance.roll_strike["roll_strike_value"]}')
+            if price_diff > float(leg_instance.roll_strike["roll_level"]):
+                print(f'price_diff is greater than {leg_instance.roll_strike["roll_level"]}')
                 # Square off existing order
                 # Cancel trigger order
 
-                current_ltp = leg_instance.strategy.get_underlyingltp()
+                current_ltp = leg_instance.strategy.get_underlying()
                 current_atm = get_atm(current_ltp, leg_instance.base)
                 roll_strike_atm = get_rolling_strike(
                     current_atm,
                     leg_instance.option_type,
-                    leg_instance.roll_strike['roll_strike_strike_type'],
+                    leg_instance.roll_strike['roll_strike_type'],
                     leg_instance.base
                 )
                 print(f"roll strike handler current ltp is {current_ltp}")

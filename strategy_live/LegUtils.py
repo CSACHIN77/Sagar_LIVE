@@ -116,25 +116,27 @@ def apply_straddle_width_selection_criteria(xts, choice, choice_value, combined_
 
     if results['type'] == 'success':
         ltp_data = results['result']['listQuotes']
-
+        print(ltp_data)
     # Calculate combined premium
     combined_premium = sum(json.loads(ltp_item)['LastTradedPrice'] for ltp_item in ltp_data)
-
+    print(f"combined premium in apply_straddle_width is {combined_premium}")
     # Handle different selection criteria
     if choice.lower() == 'atm_straddle_premium':
-        combined_premium = round(((combined_premium * choice_value) / 100), 2)
         print(f'atm_straddle_premium has {combined_premium} value ')
+        combined_premium = round(((combined_premium * choice_value) / 100), 2)
+        # print(f'atm_straddle_premium has {combined_premium} value ')
         return apply_closest_premium_selection_criteria(xts, combined_premium, expiry_df)
 
     elif choice.lower() == 'atm_pct':
         if choice_value['atm_strike'] == '+':
             atm_points = choice_value['input'] * strike
             strike = get_atm(strike + atm_points, base)
-            print(strike, atm_points)
+            print(f"strike is {strike} ")
         elif choice_value['atm_strike'] == '-':
             atm_points = choice_value['input'] * strike
             strike = get_atm(strike - atm_points, base)
         selected_option = expiry_df[expiry_df['strike'].astype(int) == strike].iloc[0]
+        print(f"selected option in apply_straddle is {selected_option}")
         return selected_option.tradingsymbol, selected_option.lot_size, int(selected_option.instrument_token)
     
     elif choice_value['atm_strike'] in ['+', '-']:
