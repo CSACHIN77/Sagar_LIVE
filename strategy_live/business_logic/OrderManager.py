@@ -89,8 +89,9 @@ async def roll_strike_handler(leg_instance, ltp, position):
             current_roll_pnl = ltp - leg_instance.trade_entry_price
             sign = 1 if position == "long" else -1
             price_diff = sign * current_roll_pnl
-
-            if price_diff > leg_instance.roll_strike["roll_strike_value"]:
+            
+            if price_diff > float(leg_instance.roll_strike["roll_strike_value"]):
+                print(f'price_diff is greater than {leg_instance.roll_strike["roll_strike_value"]}')
                 # Square off existing order
                 # Cancel trigger order
 

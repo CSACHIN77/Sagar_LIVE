@@ -58,7 +58,7 @@ async def run_strategy(xts, strategy_details, leg_attributes):
         await asyncio.sleep(sleep_duration)
 
     # underlying_ltp =  strategy.get_underlying_ltp()
-    underlying_ltp =  52400 #strategy.get_underlying_ltp()
+    underlying_ltp =  strategy.get_underlying_ltp()
     print(f"underlying ltp is {underlying_ltp}")
 
     if not underlying_ltp:

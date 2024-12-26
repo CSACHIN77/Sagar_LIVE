@@ -108,14 +108,14 @@ async def run_strategy(xts, strategy_details):
         base = strategy.base #100 if strategy.index == 'NIFTY 50' else 50
         underlying_atm = get_atm(underlying_ltp, base)
 
-        leg2 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg2", strategy, publisher, 2, 'sell', 'CE', 'current',
-                        {'strike_selection': 'strike', 'value': 'ATM'}, underlying_atm, roll_strike=False,
+        leg2 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg2", strategy, publisher, 1, 'sell', 'CE', 'current',
+                        {'strike_selection': 'atm_pct','value': {'atm_strike': '+', 'input': 0.2}}, underlying_atm, roll_strike=False,
                         new_strike_selection_criteria=3, stop_loss=['points', 15], trailing_sl={"priceMove": 20, "sl_adjustment": 4}, no_of_reentry=2, 
                         simple_momentum=False, range_breakout=False)
-        leg1 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg1", strategy, publisher, 1, 'buy', 'CE', 'current',
-                        {'strike_selection': 'strike', 'value': 'ATM'}, underlying_atm, roll_strike=False,
-                        new_strike_selection_criteria=3, stop_loss=['points', 7], trailing_sl={"priceMove": 6, "sl_adjustment": 2}, no_of_reentry=2, 
-                        simple_momentum=False, range_breakout=False)
+        # leg1 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg1", strategy, publisher, 1, 'buy', 'CE', 'current',
+        #                 {'strike_selection': 'strike', 'value': 'ATM'}, underlying_atm, roll_strike=False,
+        #                 new_strike_selection_criteria=3, stop_loss=['points', 15], trailing_sl={"priceMove": 6, "sl_adjustment": 2}, no_of_reentry=2, 
+        #                 simple_momentum=False, range_breakout=False)
         # leg1 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg1", strategy, publisher, 2, 'sell', 'CE', 'current',
         #                 {'strike_selection': 'closest_premium', 'value': 150}, underlying_atm, roll_strike=False,
         #                 new_strike_selection_criteria=3, stop_loss=['points', 10], trailing_sl={"priceMove": 10, "sl_adjustment": 4}, no_of_reentry=2, 
@@ -128,11 +128,11 @@ async def run_strategy(xts, strategy_details):
         # #                   {'strike_selection': 'strike', 'value': "ATM"}, underlying_atm, roll_strike=2,
         # #                   new_strike_selection_criteria=3, stop_loss=['points', 50], trailing_sl={"priceMove": 4, "sl_adjustment": 4}, no_of_reentry=2, 
         # #                   simple_momentum=False, range_breakout=False)
-        legs = [leg1, leg2]
-        # legs = [leg1]
+        # legs = [leg1, leg2]
+        legs = [leg2]
 
         await asyncio.gather(
-            process_leg(leg1),
+            # process_leg(leg1),
             process_leg(leg2),
             strategy._calculate_overall_pnl(legs)
         )

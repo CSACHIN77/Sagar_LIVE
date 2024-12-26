@@ -82,9 +82,9 @@ class LegBuilder:
         # print(data)
         if data['OrderUniqueIdentifier'].endswith(('sm', 'rb')):
             try:
+                print("receive trade trying to place sl")
                 self.trade_data_event.set()
-                
-                self._leg_place_order()
+                await self._leg_place_order()
 
             except:
                 pass
@@ -298,18 +298,18 @@ class LegBuilder:
             self.option_symbol, self.lot_size, self.instrument_id = apply_strike_selection_criteria(choice_value, self.strike, self.expiry_df, self.option_type, self.base)
             print(f"selected option is {self.option_symbol}")
         elif choice.lower() =='closest_premium':
-            self.option_symbol, self.lot_size, self.instrument_id, nearest_premium = apply_closest_premium_selection_criteria(self.xts, choice_value, self.expiry_df)
+            self.option_symbol, self.lot_size, self.instrument_id = apply_closest_premium_selection_criteria(self.xts, choice_value, self.expiry_df)
             print(f"selected option is {self.option_symbol}")
         elif choice.lower() in ['straddle_width', 'atm_pct', 'atm_straddle_premium']:
             self.option_symbol, self.lot_size, self.instrument_id = apply_straddle_width_selection_criteria(self.xts, choice, choice_value, self.combined_expiry_df, self.strike, self.expiry_df, self.base)
-
+            print(self.option_symbol)
         self.xts.subscribe_symbols([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}])
         response = self.xts.get_quotes([{'exchangeSegment': 2, 'exchangeInstrumentID': self.instrument_id}])
         ltp_data = response['result']['listQuotes']
         print(f"testing ltp data is {ltp_data}")
         ltp = json.loads(ltp_data[0])['LastTradedPrice']
         self.entry_price = float(ltp)
- 
+
         self.instrument = self.expiry_df[self.expiry_df['instrument_token']== self.instrument_id].iloc[0]
         self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol}, entry_price before placing order is {self.entry_price}')
        
@@ -332,7 +332,7 @@ class LegBuilder:
             time.sleep(timeframe*60)
             historical_data= self.xts.get_historical_data(params)#['result']['dataReponse']
             print(historical_data)
-            print(f"highest high is {max(historical_data['high'])}, and low is {min(historical_data['low'])}")
+            print(f"highest high is {historical_data['high']}, and low is {historical_data['low']}")
             if self.range_breakout['side'].lower()=='high':
                 self.entry_price = historical_data['high']
                 print(f'high of range is {self.entry_price}')
@@ -346,7 +346,7 @@ class LegBuilder:
                 limit_price = float(self.entry_price)
                 trigger_price = float(self.entry_price - self.trigger_tolerance)
             print(trigger_price, self.entry_price, self.position)
-            print(f"Range for {self.range_breakout['timeframe'] is  min(historical_data['low']) and  max(historical_data['high']) }")
+            print(f"Range for {self.range_breakout['timeframe'] is  historical_data['low'] and  historical_data['high'] }")
             print(f"User selected {self.range_breakout['side']} option, and entry price is {self.entry_price}")
             order =  self.xts.place_SL_order({"exchangeInstrumentID": self.instrument_id, "orderSide": self.position, "orderQuantity":int(self.total_lots * self.lot_size), "limitPrice": trigger_price, 'stopPrice':self.entry_price, 'orderUniqueIdentifier': f"{self.leg_name}_rb"})
             print('order placed for range breakout')
@@ -375,6 +375,8 @@ class LegBuilder:
                                                  "orderQuantity":int(self.total_lots * self.lot_size),
                                                    "limitPrice": trigger_price, 'stopPrice':self.entry_price,
                                                      'orderUniqueIdentifier': f"{self.leg_name}_sm"})
+            self.publisher.add_trade_subscriber(self)  #ADDED FOR SUBSCRIBING LEG TO PUBLISH TRADE
+            self.publisher.add_subscriber(self, [self.instrument_id])
             print(f"Order placed for {self.simple_momentum['direction']}  of value {sm_value} and entry price is {limit_price}")
             print(order)
             return
@@ -389,20 +391,20 @@ class LegBuilder:
             #                             "stopPrice": 1, "orderUniqueIdentifier": self.leg_name})
                     
         order_param = {"exchangeInstrumentID": self.instrument_id, "orderSide": self.position,
-                                      "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":self.entry_price-10,
+                                      "orderQuantity":int(self.lot_size) *self.total_lots,"limitPrice":self.entry_price,
                                         "stopPrice": 0, "orderUniqueIdentifier": self.leg_name}
-        self.appOrderID = execute_limit_order(self, order_param)
+        self.appOrderID = execute_limit_order(self, order_param) #for testing purpose, disabling it
             
         self.strategy.logger.log(f'{self.leg_name} : {self.instrument.tradingsymbol} market order placed')
         self.publisher.add_trade_subscriber(self)
         self.publisher.add_subscriber(self, [self.instrument_id])
     
     async def _leg_place_order(self):
-        f"calling _leg_place_order function"
+        print(f"calling _leg_place_order function")
         await leg_place_order(self)
 
     async def _roll_strike_handler(self, ltp, position):
-        roll_strike_handler(self, ltp, position)
+        await roll_strike_handler(self, ltp, position)
 
     async def calculate_mtm(self):
         quantity = self.lot_size*self.total_lots 
@@ -417,7 +419,7 @@ class LegBuilder:
             if  not self.trade_position:
                 self.realised_pnl = self.realised_pnl + self.pnl
                 self.pnl = 0
-                # print(f'm2m  {self.leg_name} is {self.realised_pnl} and there is no position')
+                print(f'm2m  {self.leg_name} is {self.realised_pnl} and there is no position')
                 
             else:
                 current_ltp = self.market_data[-1:][0]['LastTradedPrice']

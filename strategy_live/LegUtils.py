@@ -108,7 +108,7 @@ def apply_straddle_width_selection_criteria(xts, choice, choice_value, combined_
     straddle_df = combined_expiry_df[combined_expiry_df['strike'].astype(int) == int(strike)]
     options_list = []
     instrument_tokens = list(straddle_df['instrument_token'])
-
+    print(f"choice is {choice} and value is {choice_value}")
     # Fetching quotes for all instruments in the straddle
     for instrument_token in instrument_tokens:
         options_list.append({'exchangeSegment': 2, 'exchangeInstrumentID': instrument_token})
@@ -130,12 +130,13 @@ def apply_straddle_width_selection_criteria(xts, choice, choice_value, combined_
         if choice_value['atm_strike'] == '+':
             atm_points = choice_value['input'] * strike
             strike = get_atm(strike + atm_points, base)
+            print(strike, atm_points)
         elif choice_value['atm_strike'] == '-':
             atm_points = choice_value['input'] * strike
             strike = get_atm(strike - atm_points, base)
         selected_option = expiry_df[expiry_df['strike'].astype(int) == strike].iloc[0]
         return selected_option.tradingsymbol, selected_option.lot_size, int(selected_option.instrument_token)
-
+    
     elif choice_value['atm_strike'] in ['+', '-']:
         direction = 1 if choice_value['atm_strike'] == '+' else -1
         selected_strike = strike + direction * combined_premium * choice_value['input']
@@ -197,8 +198,8 @@ def apply_closest_premium_selection_criteria(xts, choice_value, expiry_df):
     nearest_option_name = expiry_df[expiry_df['instrument_token'] == instrument_id]
     option_symbol = nearest_option_name.iloc[0].tradingsymbol
     lot_size = nearest_option_name.iloc[0].lot_size
-
-    return option_symbol, lot_size, instrument_id, nearest_premium
+    print(f"debug closest premium selection criteria {option_symbol} {lot_size}, {instrument_id}")
+    return option_symbol, lot_size, instrument_id
 
 
 

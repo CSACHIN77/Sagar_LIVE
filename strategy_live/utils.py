@@ -20,7 +20,7 @@ def get_atm(price, base):
     return  round(price / base) * base
 
 def get_base(index, strikeDiffernces):
-    base = 100 # default
+    base = 50 # default
     if index == "NIFTY":
         base = strikeDiffernces["NIFTY_BASE"]
     elif index == "NIFTY BANK":

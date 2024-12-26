@@ -243,6 +243,7 @@ class XTS:
         #     return None
         
     def get_quotes_db(self, instruments):
+        
         current_data_time = self.soc.current_data_time
         
         if not current_data_time:
@@ -308,6 +309,7 @@ class XTS:
 
 
     def get_quotes(self, instruments):
+        print(f"calling get quotes")
         quotes = []
         while not self.soc._market_data:
             time.sleep(0.5)

@@ -8,7 +8,7 @@ import pandas as pd
 import mysql.connector
 import re
 from utils import get_orderbook_db
-from utils import Logger
+from Logger.MyLogger import Logger
 logger = Logger('sandbox_issues.txt')
 # from async_socket import MDSocket_io
 class XTS:
@@ -89,34 +89,34 @@ class XTS:
 
             instrument_details = response.json()['result']
             # print(instrument_details)
-            if exchangeSegmentList['exchangeSegmentList']==['NSEFO']:
-                iifl_instruments = pd.read_csv(StringIO(instrument_details), sep = '|', usecols=range(19), header = None, low_memory=False)
-                # new_column_names = ["ExchangeSegment","ExchangeInstrumentID","InstrumentType","Name","Description","Series","NameWithSeries","InstrumentID","PriceBand.High","PriceBand.Low","FreezeQty","TickSize","LotSize","Multiplier","UnderlyingInstrumentId","UnderlyingIndexName","ContractExpiration","StrikePrice","OptionType","DisplayName","PriceNumerator"]
-                new_column_names = [
-                    "ExchangeSegment",
-                    "ExchangeInstrumentID",
-                    "InstrumentType",
-                    "Name",
-                    "Description",
-                    "Series",
-                    "NameWithSeries",
-                    "InstrumentID",
-                    "PriceBand.High",
-                    "PriceBand.Low",
-                    "FreezeQty",
-                    "TickSize",
-                    "LotSize",
-                    "Multiplier",
-                    "DisplayName",
-                    "ISIN",
-                    "PriceNumerator",
-                    "PriceDenominator",
-                    "DetailedDescription"
-                ]
+            # if exchangeSegmentList['exchangeSegmentList']==['NSEFO']:
+            #     iifl_instruments = pd.read_csv(StringIO(instrument_details), sep = '|', usecols=range(19), header = None, low_memory=False)
+            #     # new_column_names = ["ExchangeSegment","ExchangeInstrumentID","InstrumentType","Name","Description","Series","NameWithSeries","InstrumentID","PriceBand.High","PriceBand.Low","FreezeQty","TickSize","LotSize","Multiplier","UnderlyingInstrumentId","UnderlyingIndexName","ContractExpiration","StrikePrice","OptionType","DisplayName","PriceNumerator"]
+            #     new_column_names = [
+            #         "ExchangeSegment",
+            #         "ExchangeInstrumentID",
+            #         "InstrumentType",
+            #         "Name",
+            #         "Description",
+            #         "Series",
+            #         "NameWithSeries",
+            #         "InstrumentID",
+            #         "PriceBand.High",
+            #         "PriceBand.Low",
+            #         "FreezeQty",
+            #         "TickSize",
+            #         "LotSize",
+            #         "Multiplier",
+            #         "DisplayName",
+            #         "ISIN",
+            #         "PriceNumerator",
+            #         "PriceDenominator",
+            #         "DetailedDescription"
+            #     ]
 
-                iifl_instruments.columns = new_column_names
-                iifl_instruments.to_csv('NSEFO.csv')
-            elif exchangeSegmentList['exchangeSegmentList']==['NSEFO']:
+            #     iifl_instruments.columns = new_column_names
+            #     iifl_instruments.to_csv('nfo.csv')
+            if exchangeSegmentList['exchangeSegmentList']==['NSEFO']:
                 # print('futures')
                 iifl_instruments = pd.read_csv(StringIO(instrument_details), sep = '|', usecols=range(21), header = None, low_memory=False)
                 new_column_names = ["ExchangeSegment","ExchangeInstrumentID","InstrumentType","Name","Description","Series","NameWithSeries","InstrumentID","PriceBand.High","PriceBand.Low","FreezeQty","TickSize","LotSize","Multiplier","UnderlyingInstrumentId","UnderlyingIndexName","ContractExpiration","StrikePrice","OptionType","DisplayName","PriceNumerator"]
@@ -220,6 +220,7 @@ class XTS:
             params["disclosedQuantity"]=0
             params["orderUniqueIdentifier"]= f'{params["orderUniqueIdentifier"]}'
             payload = params
+            print(f"payload is {payload}")
             response = requests.post(self.limit_order_url, json = payload,headers=headers)
             print(f"limit_order response : {response.json()}")
             return  response.json()['result']
