@@ -1,0 +1,89 @@
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1264.65
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1264.65
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1264.65
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1294.1
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1294.1
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+squaring off because time is over
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1294.1
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, order filled 1294.1
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1294.1
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1294.1
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+squaring off because time is over
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1294.1
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, order filled 1294.1
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1282.15
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1282.15
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+squaring off because time is over
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1282.15
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, order filled 1282.15
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1230.0
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1230.0
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+squaring off because time is over
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1230.0
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, order filled 1230.0
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1363.95
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1363.95
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+squaring off because time is over
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1382.25
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1382.25
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+squaring off because time is over
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1382.25
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, order filled 1382.25
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1383.1
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1383.1
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+squaring off because time is over
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1383.1
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, order filled 1383.1
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1400.0
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1400.0
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+squaring off because time is over
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1400.0
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1774.44
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, order filled 1400.0
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1754.44
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1403.55
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1403.55
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1403.55
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1754.44
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, order filled 1403.55
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1754.44
+squaring off everything, target acheived
+squaring off because time is over
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1284.0
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1284.0
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1284.0
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1605.0
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, order filled 1284.0
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1605.0
+squaring off everything, target acheived
+squaring off because time is over
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1395.7
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1395.7
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE market order placed
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, order filled 1395.7
+nifty_straddleleg1 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1744.63
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, order filled 1395.7
+nifty_straddleleg2 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1744.63

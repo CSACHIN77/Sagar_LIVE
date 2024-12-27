@@ -113,7 +113,7 @@ async def run_strategy(xts, strategy_details):
         #                 new_strike_selection_criteria=3, stop_loss=['points', 15], trailing_sl={"priceMove": 20, "sl_adjustment": 4}, no_of_reentry=2, 
         #                 simple_momentum={'value_type':'points', 'value':15, 'direction': 'increment' }, range_breakout=False)
         leg1 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg1", strategy, publisher, 1, 'buy', 'CE', 'current',
-                        {'strike_selection': 'strike', 'value': 'OTM3'}, underlying_atm, roll_strike={'roll_level': 30, "roll_strike_type": 'ATM'},
+                        {'strike_selection': 'strike', 'value': 'OTM4'}, underlying_atm, roll_strike={'roll_level': 10, "roll_strike_type": 'ATM'},
                         new_strike_selection_criteria=3, stop_loss=['points', 50], trailing_sl={"priceMove": 6, "sl_adjustment": 2}, no_of_reentry=2, 
                         simple_momentum=False, range_breakout=False)
         # leg1 = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg1", strategy, publisher, 2, 'sell', 'CE', 'current',
@@ -145,8 +145,8 @@ async def main():
 
     strategy_details_1 = {
         'name': 'strategy1', 'index': 'NIFTY BANK', 'underlying': 'spot', 'strategy_type': 'intraday',
-        'entry_time': "09:50", 'last_entry_time': "23:40", 'exit_time': "23:45", 'square_off': "partial",
-        'overall_sl': 400, 'overall_target': 600,                   
+        'entry_time': "10:12", 'last_entry_time': "23:40", 'exit_time': "23:45", 'square_off': "partial",
+        'overall_sl': 1000, 'overall_target': 1500,                   
         'trailing_for_strategy': {"type": "lock_and_trail", "profit": 2000, "lock_value": 1300, "trail_level":  200, "trail_value": 100}, 
         'implied_futures_expiry': 'current'
     }

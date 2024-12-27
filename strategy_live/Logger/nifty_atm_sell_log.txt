@@ -1,0 +1,14 @@
+nifty_atm_sellleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1436.15
+nifty_atm_sellleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_atm_sellleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1436.15
+nifty_atm_sellleg2 : BANKNIFTY25JAN52300PE market order placed
+nifty_atm_sellleg1 : BANKNIFTY25JAN52300PE, order filled 1436.15
+nifty_atm_sellleg1 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1795.19
+nifty_atm_sellleg2 : BANKNIFTY25JAN52300PE, order filled 1436.15
+nifty_atm_sellleg2 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1795.19
+nifty_atm_sellleg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1520.45
+nifty_atm_sellleg1 : BANKNIFTY25JAN52300PE market order placed
+nifty_atm_sellleg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1520.45
+nifty_atm_sellleg2 : BANKNIFTY25JAN52300PE market order placed
+nifty_atm_sellleg2 : BANKNIFTY25JAN52300PE, order filled 1520.45
+nifty_atm_sellleg2 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1900.56

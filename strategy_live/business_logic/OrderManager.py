@@ -61,7 +61,7 @@ async def leg_place_order(leg_instance):
         if leg_instance.stop_loss[0].lower()=='points':
             leg_instance.stop_loss = leg_instance.stop_loss[1]
         elif leg_instance.stop_loss[0].lower() == 'percent':
-            leg_instance.stop_loss = round(leg_instance.trade_entry_price*leg_instance.stoploss[1]/100, 2)
+            leg_instance.stop_loss = round(leg_instance.trade_entry_price*leg_instance.stop_loss[1]/100, 2)
         if trade_side.upper() == 'BUY':
             leg_instance.trade_position = 'long'
             print('trade position is long')

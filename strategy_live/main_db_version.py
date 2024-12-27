@@ -3,6 +3,7 @@ from datetime import datetime
 from Strategy import Strategy
 from LegBuilder import LegBuilder
 from datetime import datetime
+from database_wrapper import *
 
 import os
 import sys
@@ -27,7 +28,7 @@ try:
     from common_function import fetch_parameter
 except ImportError as e:
     print(f"Error importing 'fetch_parameter': {e}")
-environment = "dev"
+environment = "sandbox"
 
 Logger.print("Test")
 
@@ -131,14 +132,13 @@ def map_leg_details(legs):
             'position': leg['position'],
             'option_type': leg['option_type'],
             'expiry': leg['expiry'].lower(),
-            'strike_selection': {
-                'strike_selection': leg['strike_selection_criteria'],
-                'value': leg.get('strike_type', None).lower()
-            },
-            'simple_momentum': leg['simple_momentum'],
-            'range_breakout': leg['range_breakout'],
-            'stoploss' : [leg['strike_selection_criteria_stop_loss_sign'], leg['strike_selection_criteria_stop_loss']],
-            'reentry' : leg['no_of_reentry']
+            'strike_selection': strike_selection_wrapper(leg),
+            'simple_momentum': sm_rb_wrapper(leg),
+            'range_breakout': sm_rb_wrapper(leg),
+            'stoploss' : leg_stoploss_wrapper(leg),
+            'trailing_sl' : leg_trail_sl_wrapper(leg),
+            'roll_strike' : roll_strike_wrapper(leg),
+            'reentry' : int(leg['no_of_reentry'])
         }
         for leg in legs
     ]
@@ -163,7 +163,7 @@ async def run_strategy(xts, strategy_details, legs):
     if time_now < strategy.entry_time:
         print(f'sleeping for {(strategy.entry_time - time_now).total_seconds()}')
         await asyncio.sleep((strategy.entry_time - time_now).total_seconds())
-    underlying_ltp = strategy.get_underlying()
+    underlying_ltp = 52300 #strategy.get_underlying()
     if not underlying_ltp:
         retry_counter = 0
         while retry_counter <=3:
@@ -178,10 +178,11 @@ async def run_strategy(xts, strategy_details, legs):
         base = strategy.base
         underlying_atm = get_atm(underlying_ltp, base)
         for leg in legs:
+            print(leg)
             leg_class = LegBuilder(xts, 'soc', interactive_soc, f"{strategy.name}leg{counter}", strategy, publisher, leg['lots'],
-                                leg['position'], leg['option_type'], leg['expiry'], leg['strike_selection'],underlying_atm, roll_strike=False,
-                                new_strike_selection_criteria=3, stop_loss=leg['stoploss'], trailing_sl=False, no_of_reentry=leg['reentry'],
-                                simple_momentum=False, range_breakout=False
+                                leg['position'], leg['option_type'], leg['expiry'], leg['strike_selection'],underlying_atm, roll_strike=leg['roll_strike'],
+                                new_strike_selection_criteria=3, stop_loss=leg['stoploss'], trailing_sl = leg['trailing_sl'], no_of_reentry=leg['reentry'],
+                                simple_momentum=leg['simple_momentum'], range_breakout=leg['range_breakout']
                                 )
             counter +=1 
             total_legs.append(leg_class)
@@ -192,14 +193,14 @@ async def run_strategy(xts, strategy_details, legs):
         )
     # Process all legs for the strategy
     # await asyncio.gather(*(process_leg(leg) for leg in legs))
-    
+
 # Main execution function
 async def main():
-    strategy_ids = [41]  
+    strategy_ids = [38]  
     strategies_with_legs = fetch_strategy_and_legs(strategy_ids)
 
     for strategy_id, data in strategies_with_legs.items():
-        strategy_details = map_strategy_details(data['strategy_details'], "NIFTY 50")
+        strategy_details = map_strategy_details(data['strategy_details'], "NIFTY BANK")
         legs = map_leg_details(data['legs'])
         await run_strategy(xts, strategy_details, legs)
 

@@ -139,12 +139,13 @@ def apply_straddle_width_selection_criteria(xts, choice, choice_value, combined_
         print(f"selected option in apply_straddle is {selected_option}")
         return selected_option.tradingsymbol, selected_option.lot_size, int(selected_option.instrument_token)
     
-    elif choice_value['atm_strike'] in ['+', '-']:
-        direction = 1 if choice_value['atm_strike'] == '+' else -1
-        selected_strike = strike + direction * combined_premium * choice_value['input']
-        selected_strike = get_atm(selected_strike, base)
-        selected_option = expiry_df[expiry_df['strike'].astype(int) == selected_strike].iloc[0]
-        return selected_option.tradingsymbol, selected_option.lot_size, int(selected_option.instrument_token)
+    else:
+    	if choice_value['atm_strike'] in ['+', '-']:
+            direction = 1 if choice_value['atm_strike'] == '+' else -1
+            selected_strike = strike + direction * combined_premium * choice_value['input']
+            selected_strike = get_atm(selected_strike, base)
+            selected_option = expiry_df[expiry_df['strike'].astype(int) == selected_strike].iloc[0]
+            return selected_option.tradingsymbol, selected_option.lot_size, int(selected_option.instrument_token)
 
     raise ValueError(f"Invalid selection criteria: {choice}")
 

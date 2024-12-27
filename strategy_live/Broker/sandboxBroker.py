@@ -66,7 +66,7 @@ class XTS:
         #     return e
         
     def place_limit_order(self, order_params):
-        print(f"order placed through limit order {order_params}")
+        # print(f"order placed through limit order {order_params}")
         url = f"{self.base_url}/placeOrder"
         limit_order_params  = {
             'OrderType' : 'LIMIT',
@@ -347,7 +347,7 @@ class XTS:
             
             if response.status_code == 200:
                 order_response = response.json()['result']
-                print(f"Stop-Limit order placed successfully: {order_response}")
+                # print(f"Stop-Limit order placed successfully: {order_response}")
                 return {
                     "type": "success",
                     "code": "s-slorder-0001",

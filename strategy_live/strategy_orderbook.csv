@@ -1,4 +1,52 @@
 OrderType,OrderSide,exchangeInstrumentID,OrderPrice,OrderQuantity,OrderUniqueIdentifier,LoginID,ClientID,AppOrderID,OrderReferenceID,GeneratedBy,ExchangeOrderID,OrderCategoryType,ExchangeSegment,ExchangeInstrumentID,ProductType,TimeInForce,OrderStopPrice,OrderDisclosedQuantity,OrderGeneratedDateTime,LastUpdateDateTime,OrderExpiryDate,CancelRejectReason,OrderLegStatus,IsSpread,BoLegDetails,BoEntryOrderId,MessageCode,MessageVersion,TokenID,ApplicationType,SequenceNumber,OrderStatus,OrderAverageTradedPrice,LeavesQuantity,CumulativeQuantity,exchangeSegment,productType,orderType,timeInForce,disclosedQuantity,limitPrice,stopPrice
-LIMIT,buy,39549,1172,15,strategy1leg1,XTS,SYMP1,1735236110993,,TWSAPI,EXCHANGE1735236110993,NORMAL,NSECM,39549.0,NRML,DAY,0.0,0.0,26-12-2024 23:31:50,26-12-2024 23:31:50,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,1172.0,0.0,15.0,,,,,,,
-STOPLIMIT,SELL,39549,1126,15,strategy1leg1_sl,,,APP1735236114028,,,,,,,NRML,DAY,1128.0,0.0,26-12-2024 23:31:54,26-12-2024 23:38:10,,,,,,,,,,,,New,,,,,,,,,,
-,SELL,39549,1140,15,strategy1leg1_squareoff,,,APP1735236899328,,,,,,,,,,,,26-12-2024 23:44:59,,,,,,,,,,,,Filled,1140.0,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+LIMIT,sell,39562,1403.55,15,nifty_straddleleg1,XTS,SYMP1,1735295100408,,TWSAPI,EXCHANGE1735295100408,NORMAL,NSECM,39562.0,NRML,DAY,0.0,0.0,27-12-2024 15:55:00,27-12-2024 15:55:00,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,1403.55,0.0,15.0,,,,,,,
+LIMIT,sell,39562,1403.55,15,nifty_straddleleg2,XTS,SYMP1,1735295100494,,TWSAPI,EXCHANGE1735295100494,NORMAL,NSECM,39562.0,NRML,DAY,0.0,0.0,27-12-2024 15:55:00,27-12-2024 15:55:00,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,1403.55,0.0,15.0,,,,,,,
+StopLimit,BUY,39562,1756.44,15,nifty_straddleleg1_sl,,,APP1735295100505,,,,,,,,,1754.44,,27-12-2024 15:55:00,27-12-2024 15:55:00,,,,,,,,,,,,New,,,,,,,,,,
+StopLimit,BUY,39562,1756.44,15,nifty_straddleleg2_sl,,,APP1735295100514,,,,,,,,,1754.44,,27-12-2024 15:55:00,27-12-2024 15:55:00,,,,,,,,,,,,New,,,,,,,,,,
+,SELL,39562,1387.5,15,nifty_straddleleg1_squareoff,,,APP1735295118624,,,,,,,,,,,,27-12-2024 15:55:18,,,,,,,,,,,,Filled,1387.5,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1387.5,15,nifty_straddleleg2_squareoff,,,APP1735295122686,,,,,,,,,,,,27-12-2024 15:55:22,,,,,,,,,,,,Filled,1387.5,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1387.5,15,nifty_straddleleg1_squareoff,,,APP1735295126752,,,,,,,,,,,,27-12-2024 15:55:26,,,,,,,,,,,,Filled,1387.5,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1387.5,15,nifty_straddleleg1_squareoff,,,APP1735295126775,,,,,,,,,,,,27-12-2024 15:55:26,,,,,,,,,,,,Filled,1387.5,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1387.5,15,nifty_straddleleg2_squareoff,,,APP1735295130847,,,,,,,,,,,,27-12-2024 15:55:30,,,,,,,,,,,,Filled,1387.5,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1387.5,15,nifty_straddleleg2_squareoff,,,APP1735295130941,,,,,,,,,,,,27-12-2024 15:55:30,,,,,,,,,,,,Filled,1387.5,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+LIMIT,sell,39562,1284.0,15,nifty_straddleleg1,XTS,SYMP1,1735304263712,,TWSAPI,EXCHANGE1735304263712,NORMAL,NSECM,39562.0,NRML,DAY,0.0,0.0,27-12-2024 18:27:43,27-12-2024 18:27:43,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,1284.0,0.0,15.0,,,,,,,
+LIMIT,sell,39562,1284.0,15,nifty_straddleleg2,XTS,SYMP1,1735304263726,,TWSAPI,EXCHANGE1735304263726,NORMAL,NSECM,39562.0,NRML,DAY,0.0,0.0,27-12-2024 18:27:43,27-12-2024 18:27:43,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,1284.0,0.0,15.0,,,,,,,
+StopLimit,BUY,39562,1607.0,15,nifty_straddleleg1_sl,,,APP1735304263736,,,,,,,,,1605.0,,27-12-2024 18:27:43,27-12-2024 18:27:43,,,,,,,,,,,,New,,,,,,,,,,
+StopLimit,BUY,39562,1607.0,15,nifty_straddleleg2_sl,,,APP1735304263744,,,,,,,,,1605.0,,27-12-2024 18:27:43,27-12-2024 18:27:43,,,,,,,,,,,,New,,,,,,,,,,
+,SELL,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304342073,,,,,,,,,,,,27-12-2024 18:29:02,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304342096,,,,,,,,,,,,27-12-2024 18:29:02,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304342123,,,,,,,,,,,,27-12-2024 18:29:02,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304342148,,,,,,,,,,,,27-12-2024 18:29:02,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304342173,,,,,,,,,,,,27-12-2024 18:29:02,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304346260,,,,,,,,,,,,27-12-2024 18:29:06,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304346283,,,,,,,,,,,,27-12-2024 18:29:06,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304346307,,,,,,,,,,,,27-12-2024 18:29:06,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304346331,,,,,,,,,,,,27-12-2024 18:29:06,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304346357,,,,,,,,,,,,27-12-2024 18:29:06,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304350440,,,,,,,,,,,,27-12-2024 18:29:10,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304350463,,,,,,,,,,,,27-12-2024 18:29:10,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304350487,,,,,,,,,,,,27-12-2024 18:29:10,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304350511,,,,,,,,,,,,27-12-2024 18:29:10,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304350536,,,,,,,,,,,,27-12-2024 18:29:10,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304350559,,,,,,,,,,,,27-12-2024 18:29:10,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304350584,,,,,,,,,,,,27-12-2024 18:29:10,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304350621,,,,,,,,,,,,27-12-2024 18:29:10,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304350648,,,,,,,,,,,,27-12-2024 18:29:10,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg1_squareoff,,,APP1735304350725,,,,,,,,,,,,27-12-2024 18:29:10,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304354829,,,,,,,,,,,,27-12-2024 18:29:14,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304354855,,,,,,,,,,,,27-12-2024 18:29:14,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304354879,,,,,,,,,,,,27-12-2024 18:29:14,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304354903,,,,,,,,,,,,27-12-2024 18:29:14,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304354927,,,,,,,,,,,,27-12-2024 18:29:14,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304354953,,,,,,,,,,,,27-12-2024 18:29:14,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304354978,,,,,,,,,,,,27-12-2024 18:29:14,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,SELL,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304355003,,,,,,,,,,,,27-12-2024 18:29:15,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304355029,,,,,,,,,,,,27-12-2024 18:29:15,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+,BUY,39562,1266.15,15,nifty_straddleleg2_squareoff,,,APP1735304355055,,,,,,,,,,,,27-12-2024 18:29:15,,,,,,,,,,,,Filled,1266.15,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0
+LIMIT,sell,39562,1395.7,15,nifty_straddleleg1,XTS,SYMP1,1735309088034,,TWSAPI,EXCHANGE1735309088034,NORMAL,NSECM,39562.0,NRML,DAY,0.0,0.0,27-12-2024 19:48:08,27-12-2024 19:48:08,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,1395.7,0.0,15.0,,,,,,,
+LIMIT,sell,39562,1395.7,15,nifty_straddleleg2,XTS,SYMP1,1735309088049,,TWSAPI,EXCHANGE1735309088049,NORMAL,NSECM,39562.0,NRML,DAY,0.0,0.0,27-12-2024 19:48:08,27-12-2024 19:48:08,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,1395.7,0.0,15.0,,,,,,,
+StopLimit,BUY,39562,1746.63,15,nifty_straddleleg1_sl,,,APP1735309088056,,,,,,,,,1744.63,,27-12-2024 19:48:08,27-12-2024 19:48:08,,,,,,,,,,,,New,,,,,,,,,,
+StopLimit,BUY,39562,1746.63,15,nifty_straddleleg2_sl,,,APP1735309088060,,,,,,,,,1744.63,,27-12-2024 19:48:08,27-12-2024 19:48:08,,,,,,,,,,,,New,,,,,,,,,,
+LIMIT,sell,39562,1414.35,15,UseCase1leg1,XTS,SYMP1,1735309171760,,TWSAPI,EXCHANGE1735309171760,NORMAL,NSECM,39562.0,NRML,DAY,0.0,0.0,27-12-2024 19:49:31,27-12-2024 19:49:31,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,1414.35,0.0,15.0,,,,,,,
+LIMIT,sell,39562,1414.35,15,UseCase1leg2,XTS,SYMP1,1735309171774,,TWSAPI,EXCHANGE1735309171774,NORMAL,NSECM,39562.0,NRML,DAY,0.0,0.0,27-12-2024 19:49:31,27-12-2024 19:49:31,01-01-1980 00:00:00,,SingleOrderLeg,False,0.0,,9004.0,4.0,0.0,0.0,0.0,Filled,1414.35,0.0,15.0,,,,,,,
+,SELL,39562,1414.35,15,UseCase1leg1_squareoff,,,APP1735309171845,,,,,,,,,,,,27-12-2024 19:49:31,,,,,,,,,,,,Filled,1414.35,,,NSEFO,NRML,MARKET,DAY,0.0,0.0,0.0

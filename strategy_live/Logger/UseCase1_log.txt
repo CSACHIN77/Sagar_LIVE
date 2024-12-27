@@ -1,0 +1,9 @@
+UseCase1leg1 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1414.35
+UseCase1leg1 : BANKNIFTY25JAN52300PE market order placed
+UseCase1leg2 : BANKNIFTY25JAN52300PE, entry_price before placing order is 1414.35
+UseCase1leg2 : BANKNIFTY25JAN52300PE market order placed
+squaring off because time is over
+UseCase1leg1 : BANKNIFTY25JAN52300PE, order filled 1414.35
+UseCase1leg1 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1767.9399999999998
+UseCase1leg2 : BANKNIFTY25JAN52300PE, order filled 1414.35
+UseCase1leg2 : BANKNIFTY25JAN52300PE, SL order placed with limit price 1767.9399999999998
